@@ -1,5 +1,8 @@
-﻿using Dapperer.QueryBuilders;
+﻿using System.Data;
+using System.Linq;
+using Dapperer.QueryBuilders;
 using Dapperer.TestApiApp.Entities;
+using Dapper;
 
 namespace Dapperer.TestApiApp.DatabaseAccess
 {
@@ -10,9 +13,20 @@ namespace Dapperer.TestApiApp.DatabaseAccess
         {
         }
 
-        public void PopulateAddresses(Contact contact)
+        public virtual void PopulateAddresses(Contact contact)
         {
             Populate<Address, int>(address => address.ContactId, c => c.Addresses, contact);
+        }
+
+        public virtual Contact GetContactByName(string name)
+        {
+            ITableInfoBase tableInfo = GetTableInfo();
+            string sql = string.Format(@"SELECT * FROM {0} WHERE Name = @Name", tableInfo.TableName);
+
+            using (IDbConnection connection = CreateConnection())
+            {
+                return connection.Query<Contact>(sql, new { Name = name }).SingleOrDefault();
+            }
         }
     }
 }

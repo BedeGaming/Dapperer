@@ -10,7 +10,7 @@ namespace Dapperer.TestApiApp.DatabaseAccess
         {
         }
 
-        public void PopulateContact(Address address)
+        public virtual void PopulateContact(Address address)
         {
             Populate(a => a.ContactId, a => a.Contact, address);
         }
