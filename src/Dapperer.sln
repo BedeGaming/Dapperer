@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8A7D4062
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapperer.Tests.Unit", "Tests\Dapperer.Tests.Unit\Dapperer.Tests.Unit.csproj", "{7F5F6AE1-193E-43C0-80BB-2C5F7C4129C5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapperer.TestApiApp", "Dapperer.TestApiApp\Dapperer.TestApiApp.csproj", "{9C642D68-DAB4-4BBC-83C6-4885927A1E1C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{7F5F6AE1-193E-43C0-80BB-2C5F7C4129C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F5F6AE1-193E-43C0-80BB-2C5F7C4129C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F5F6AE1-193E-43C0-80BB-2C5F7C4129C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C642D68-DAB4-4BBC-83C6-4885927A1E1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C642D68-DAB4-4BBC-83C6-4885927A1E1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C642D68-DAB4-4BBC-83C6-4885927A1E1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C642D68-DAB4-4BBC-83C6-4885927A1E1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
