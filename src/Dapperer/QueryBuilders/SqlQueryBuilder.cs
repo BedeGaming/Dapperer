@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Dapperer
+namespace Dapperer.QueryBuilders
 {
     /// <summary>
     /// Builds the basic CRUD queries for an entity
     /// Cache table info and CRUD queries in memory - create a singleton instance per life time
     /// </summary>
-    public class QueryBuilder
+    public class SqlQueryBuilder : IQueryBuilder
     {
         private readonly Dictionary<Type, TableInfo> _tableInfos;
 
-        public QueryBuilder()
+        public SqlQueryBuilder()
         {
             _tableInfos = new Dictionary<Type, TableInfo>();
         }

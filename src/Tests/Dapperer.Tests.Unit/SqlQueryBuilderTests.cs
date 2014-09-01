@@ -1,16 +1,17 @@
 ﻿using System;
+using Dapperer.QueryBuilders;
 using NUnit.Framework;
 
 namespace Dapperer.Tests.Unit
 {
     [TestFixture]
-    public class QueryBuilderTests
+    public class SqlQueryBuilderTests
     {
         [Test]
         public void GetByPrimaryKeyQuery_EntityWithPrimaryKey_ReturnQueryAsExpected()
         {
             const string expectedSql = "SELECT * FROM TestTable WHERE Id = @Key";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             string sql = queryBuilder.GetByPrimaryKeyQuery<TestEntityWithAutoIncreamentId>();
 
@@ -21,7 +22,7 @@ namespace Dapperer.Tests.Unit
         public void GetByPrimaryKeyQuery_EntityWithoutTableSpecified_ThrowException()
         {
             const string expectedExceptionMessage = "Table attribute must be specified to the Entity";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.GetByPrimaryKeyQuery<TestEntityNoTableSpecified>());
 
@@ -32,7 +33,7 @@ namespace Dapperer.Tests.Unit
         public void GetByPrimaryKeyQuery_EntityWithoutPrimaryKey_ThrowException()
         {
             const string expectedExceptionMessage = "Primary key must be specified to the table";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.GetByPrimaryKeyQuery<TestEntityWithoutPrimaryKey>());
 
@@ -43,7 +44,7 @@ namespace Dapperer.Tests.Unit
         public void PageQuery_EntityWithoutTableSpecified_ThrowException()
         {
             const string expectedExceptionMessage = "Table attribute must be specified to the Entity";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.PageQuery<TestEntityNoTableSpecified>(2, 5));
 
@@ -55,7 +56,7 @@ namespace Dapperer.Tests.Unit
         {
             const string expectedItemsSql = "SELECT * FROM TestTable ORDER BY Id OFFSET 2 ROWS FETCH NEXT 5 ROWS ONLY";
             const string expectedCountSql = "SELECT CAST(COUNT(*) AS Int) AS total FROM TestTable";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 5);
 
@@ -68,7 +69,7 @@ namespace Dapperer.Tests.Unit
         {
             const string expectedItemsSql = "SELECT * FROM TestTable ORDER BY Name OFFSET 2 ROWS FETCH NEXT 5 ROWS ONLY";
             const string expectedCountSql = "SELECT CAST(COUNT(*) AS Int) AS total FROM TestTable";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 5, orderByQuery: "ORDER BY Name");
 
@@ -81,7 +82,7 @@ namespace Dapperer.Tests.Unit
         {
             const string expectedItemsSql = "SELECT DISTINCT TestTable.* FROM TestTable WHERE BY Name like 'J%' ORDER BY Id OFFSET 2 ROWS FETCH NEXT 5 ROWS ONLY";
             const string expectedCountSql = "SELECT CAST(COUNT(DISTINCT TestTable.Id) AS Int) AS total FROM TestTable WHERE BY Name like 'J%'";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 5, filterQuery: "WHERE BY Name like 'J%'");
 
@@ -93,7 +94,7 @@ namespace Dapperer.Tests.Unit
         public void InsertQuery_EntityWithoutTableSpecified_ThrowException()
         {
             const string expectedExceptionMessage = "Table attribute must be specified to the Entity";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.InsertQuery<TestEntityNoTableSpecified, int>());
 
@@ -104,7 +105,7 @@ namespace Dapperer.Tests.Unit
         public void InsertQuery_EntityWithAutoIncrementingPrimaryKey_DoesnotIncludePrimaryKeyInInsert()
         {
             const string expectedSql = "INSERT INTO TestTable (Name) VALUES (@Name);SELECT CAST(SCOPE_IDENTITY() as Int);";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             string sql = queryBuilder.InsertQuery<TestEntityWithAutoIncreamentId, int>();
 
@@ -115,7 +116,7 @@ namespace Dapperer.Tests.Unit
         public void InsertQuery_EntityWithoutAutoIncrementingPrimaryKey_IncludePrimaryKeyInInsert()
         {
             const string expectedSql = "INSERT INTO TestTable (Id,Name) VALUES (@Id,@Name);";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             string sql = queryBuilder.InsertQuery<TestEntityWithoutAutoIncreamentId, int>();
 
@@ -126,7 +127,7 @@ namespace Dapperer.Tests.Unit
         public void UpdateQuery_EntityWithoutTableSpecified_ThrowException()
         {
             const string expectedExceptionMessage = "Table attribute must be specified to the Entity";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.UpdateQuery<TestEntityNoTableSpecified>());
 
@@ -137,7 +138,7 @@ namespace Dapperer.Tests.Unit
         public void UpdateQuery_EntityWithTableSpecified_ReturnExpectedInsertQuery()
         {
             const string expectedSql = "UPDATE TestTable SETName = @NameWHERE Id = @Id;";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             string sql = queryBuilder.UpdateQuery<TestEntityWithAutoIncreamentId>();
 
@@ -148,7 +149,7 @@ namespace Dapperer.Tests.Unit
         public void DeleteQuery_EntityWithPrimaryKey_ReturnQueryAsExpected()
         {
             const string expectedSql = "DELETE FROM TestTable WHERE Id = @Key";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             string sql = queryBuilder.DeleteQuery<TestEntityWithAutoIncreamentId>();
 
@@ -159,7 +160,7 @@ namespace Dapperer.Tests.Unit
         public void DeleteQuery_EntityWithoutTableSpecified_ThrowException()
         {
             const string expectedExceptionMessage = "Table attribute must be specified to the Entity";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.DeleteQuery<TestEntityNoTableSpecified>());
 
@@ -170,7 +171,7 @@ namespace Dapperer.Tests.Unit
         public void DeleteQuery_EntityWithoutPrimaryKey_ThrowException()
         {
             const string expectedExceptionMessage = "Primary key must be specified to the table";
-            var queryBuilder = new QueryBuilder();
+            IQueryBuilder queryBuilder = GetQueryBuilder();
 
             var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.DeleteQuery<TestEntityWithoutPrimaryKey>());
 
@@ -183,6 +184,11 @@ namespace Dapperer.Tests.Unit
                 return sql;
 
             return sql.Replace("\n", "").Replace("\t", "").Trim();
+        }
+
+        private IQueryBuilder GetQueryBuilder()
+        {
+            return new SqlQueryBuilder();
         }
     }
 }

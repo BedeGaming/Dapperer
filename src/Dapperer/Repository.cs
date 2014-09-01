@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Dapper;
+using Dapperer.QueryBuilders;
 
 namespace Dapperer
 {
@@ -17,10 +18,10 @@ namespace Dapperer
     public abstract class Repository<TEntity, TPrimaryKey>
         where TEntity : class, IIdentifier<TPrimaryKey>, new()
     {
-        private readonly QueryBuilder _queryBuilder;
+        private readonly IQueryBuilder _queryBuilder;
         private readonly IDbFactory _dbFactory;
 
-        protected Repository(QueryBuilder queryBuilder, IDbFactory dbFactory)
+        protected Repository(IQueryBuilder queryBuilder, IDbFactory dbFactory)
         {
             _queryBuilder = queryBuilder;
             _dbFactory = dbFactory;
