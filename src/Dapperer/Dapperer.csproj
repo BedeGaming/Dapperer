@@ -47,21 +47,21 @@
     <Compile Include="ColumnInfo.cs" />
     <Compile Include="DefaultDappererSettings.cs" />
     <Compile Include="IDappererSettings.cs" />
-    <Compile Include="QueryBuilders\ISqlQueryBuilder.cs" />
-    <Compile Include="SqlDbFactory.cs" />
+    <Compile Include="ISqlQueryBuilder.cs" />
+    <Compile Include="DbFactories\SqlDbFactory.cs" />
     <Compile Include="IDbFactory.cs" />
     <Compile Include="IIdentifier.cs" />
-    <Compile Include="IntTableValuedParams.cs" />
+    <Compile Include="QueryBuilders\MsSql\IntTableValuedParams.cs" />
     <Compile Include="ITableInfoBase.cs" />
     <Compile Include="Page.cs" />
     <Compile Include="PagingSql.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueryBuilders\SqlQueryBuilder.cs" />
+    <Compile Include="QueryBuilders\MsSql\SqlQueryBuilder.cs" />
     <Compile Include="Repository.cs" />
-    <Compile Include="StringTableValuedParams.cs" />
+    <Compile Include="QueryBuilders\MsSql\StringTableValuedParams.cs" />
     <Compile Include="TableAttribute.cs" />
     <Compile Include="TableInfo.cs" />
-    <Compile Include="TableValuedParams.cs" />
+    <Compile Include="QueryBuilders\MsSql\TableValuedParams.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Dapperer.QueryBuilders
+namespace Dapperer.QueryBuilders.MsSql
 {
     /// <summary>
     /// Builds the basic CRUD queries for an entity

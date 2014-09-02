@@ -2,7 +2,9 @@
 using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
+using Dapperer.DbFactories;
 using Dapperer.QueryBuilders;
+using Dapperer.QueryBuilders.MsSql;
 using Dapperer.TestApiApp.Controllers;
 using Dapperer.TestApiApp.DatabaseAccess;
 

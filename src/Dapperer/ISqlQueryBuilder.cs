@@ -1,4 +1,4 @@
-namespace Dapperer.QueryBuilders
+namespace Dapperer
 {
     public interface IQueryBuilder
     {

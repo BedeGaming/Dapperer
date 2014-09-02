@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
 
-namespace Dapperer
+namespace Dapperer.DbFactories
 {
     public class SqlDbFactory : IDbFactory
     {

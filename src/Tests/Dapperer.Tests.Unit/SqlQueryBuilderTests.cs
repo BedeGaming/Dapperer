@@ -1,5 +1,6 @@
 ﻿using System;
 using Dapperer.QueryBuilders;
+using Dapperer.QueryBuilders.MsSql;
 using NUnit.Framework;
 
 namespace Dapperer.Tests.Unit

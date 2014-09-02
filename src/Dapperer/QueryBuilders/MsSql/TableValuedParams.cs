@@ -5,7 +5,7 @@ using System.Linq;
 using Dapper;
 using Microsoft.SqlServer.Server;
 
-namespace Dapperer
+namespace Dapperer.QueryBuilders.MsSql
 {
     public abstract class TableValuedParams : SqlMapper.IDynamicParameters
     {
