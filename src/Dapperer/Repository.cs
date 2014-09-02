@@ -263,7 +263,8 @@ namespace Dapperer
             }
         }
 
-        protected static Page<TEntity> PageResults(int skip, int take, int totalItems, List<TEntity> items)
+        protected static Page<T> PageResults<T>(int skip, int take, int totalItems, List<T> items)
+            where T : class 
         {
             int totalPages = totalItems / take;
             int currentPage = skip / take;
@@ -273,7 +274,7 @@ namespace Dapperer
             if ((skip % take) == 0)
                 currentPage++;
 
-            return new Page<TEntity>
+            return new Page<T>
             {
                 CurrentPage = currentPage,
                 ItemsPerPage = take,
