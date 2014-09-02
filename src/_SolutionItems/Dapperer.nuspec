@@ -7,9 +7,9 @@
     <owners>Bede Gaming Ltd</owners>
     <description>Dapperer an extension for Dapper</description>
     <copyright>Bede Gaming Ltd 2014</copyright>
-	<frameworkAssemblies>
-      <frameworkAssembly assemblyName="Dapper, Version=1.34.0.0" targetFramework="net40" />
-    </frameworkAssemblies>
+    <dependencies>
+      <dependency id="Dapper" version="1.34" />
+    </dependencies>
   </metadata>
   <files>
     <file src="src\Dapperer\bin\Release\Dapperer.dll" target="lib\net45" />
