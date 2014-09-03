@@ -54,6 +54,19 @@ namespace Dapperer.QueryBuilders.MsSql
             _otherParams.Add(parameter);
         }
 
+        public void AdditionalLongTableValuedParameter(string name, IEnumerable<long> items)
+        {
+            var parameter = new SqlParameter
+            {
+                ParameterName = name,
+                SqlDbType = SqlDbType.Structured,
+                TypeName = "LongList",
+                Value = GenerateLongTableParameterRecords(items)
+            };
+
+            _otherParams.Add(parameter);
+        }
+
         public void AdditionalStringTableValuedParameter(string name, IEnumerable<string> items)
         {
             var parameter = new SqlParameter
@@ -92,6 +105,18 @@ namespace Dapperer.QueryBuilders.MsSql
             {
                 var record = new SqlDataRecord(tableDefinition);
                 record.SetInt32(0, item);
+                return record;
+            }).ToList();
+        }
+
+        protected List<SqlDataRecord> GenerateLongTableParameterRecords(IEnumerable<long> items)
+        {
+            SqlMetaData[] tableDefinition = { new SqlMetaData("Id", SqlDbType.BigInt) };
+
+            return items.Select(item =>
+            {
+                var record = new SqlDataRecord(tableDefinition);
+                record.SetInt64(0, item);
                 return record;
             }).ToList();
         }
