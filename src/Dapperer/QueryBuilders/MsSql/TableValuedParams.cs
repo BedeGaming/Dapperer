@@ -99,7 +99,7 @@ namespace Dapperer.QueryBuilders.MsSql
 
         protected List<SqlDataRecord> GenerateIntTableParameterRecords(IEnumerable<int> items)
         {
-            if (items.IsNullOrEmpty())
+            if (IsNullOrEmpty(items))
             {
                 return null;
             }
@@ -116,7 +116,7 @@ namespace Dapperer.QueryBuilders.MsSql
 
         protected List<SqlDataRecord> GenerateLongTableParameterRecords(IEnumerable<long> items)
         {
-            if (items.IsNullOrEmpty())
+            if (IsNullOrEmpty(items))
             {
                 return null;
             }
@@ -133,7 +133,7 @@ namespace Dapperer.QueryBuilders.MsSql
 
         protected List<SqlDataRecord> GenerateStringTableParameterRecords(IEnumerable<string> items)
         {
-            if (items.IsNullOrEmpty())
+            if (IsNullOrEmpty(items))
             {
                 return null;
             }
@@ -146,6 +146,22 @@ namespace Dapperer.QueryBuilders.MsSql
                 record.SetString(0, item);
                 return record;
             }).ToList();
+        }
+
+        private static bool IsNullOrEmpty<TSource>(IEnumerable<TSource> source)
+        {
+            if (source == null)
+            {
+                return true;
+            }
+
+            var collection = source as ICollection<TSource>;
+            if (collection != null)
+            {
+                return collection.Count < 1;
+            }
+
+            return !source.Any();
         }
     }
 }
