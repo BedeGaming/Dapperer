@@ -148,20 +148,9 @@ namespace Dapperer.QueryBuilders.MsSql
             }).ToList();
         }
 
-        private static bool IsNullOrEmpty<TSource>(IEnumerable<TSource> source)
+        public bool IsNullOrEmpty<TSource>(IEnumerable<TSource> source)
         {
-            if (source == null)
-            {
-                return true;
-            }
-
-            var collection = source as ICollection<TSource>;
-            if (collection != null)
-            {
-                return collection.Count < 1;
-            }
-
-            return !source.Any();
+            return source == null || !source.Any();
         }
     }
 }
