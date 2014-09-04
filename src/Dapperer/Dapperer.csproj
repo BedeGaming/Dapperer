@@ -47,7 +47,7 @@
     <Compile Include="ColumnInfo.cs" />
     <Compile Include="DefaultDappererSettings.cs" />
     <Compile Include="IDappererSettings.cs" />
-    <Compile Include="ISqlQueryBuilder.cs" />
+    <Compile Include="IQueryBuilder.cs" />
     <Compile Include="DbFactories\SqlDbFactory.cs" />
     <Compile Include="IDbFactory.cs" />
     <Compile Include="IIdentifier.cs" />
