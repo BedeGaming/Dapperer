@@ -99,6 +99,11 @@ namespace Dapperer.QueryBuilders.MsSql
 
         protected List<SqlDataRecord> GenerateIntTableParameterRecords(IEnumerable<int> items)
         {
+            if (items.IsNullOrEmpty())
+            {
+                return null;
+            }
+
             SqlMetaData[] tableDefinition = { new SqlMetaData("Id", SqlDbType.Int) };
 
             return items.Select(item =>
@@ -111,6 +116,11 @@ namespace Dapperer.QueryBuilders.MsSql
 
         protected List<SqlDataRecord> GenerateLongTableParameterRecords(IEnumerable<long> items)
         {
+            if (items.IsNullOrEmpty())
+            {
+                return null;
+            }
+
             SqlMetaData[] tableDefinition = { new SqlMetaData("Id", SqlDbType.BigInt) };
 
             return items.Select(item =>
@@ -123,6 +133,11 @@ namespace Dapperer.QueryBuilders.MsSql
 
         protected List<SqlDataRecord> GenerateStringTableParameterRecords(IEnumerable<string> items)
         {
+            if (items.IsNullOrEmpty())
+            {
+                return null;
+            }
+
             SqlMetaData[] tableDefinition = { new SqlMetaData("Id", SqlDbType.NVarChar, 100) };
 
             return items.Select(item =>
