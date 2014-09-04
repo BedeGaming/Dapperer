@@ -50,7 +50,7 @@ namespace Dapperer.QueryBuilders.MsSql
         public PagingSql PageQuery<TEntity>(long skip, long take, string orderByQuery = null, string filterQuery = null)
             where TEntity : class
         {
-            TableInfo tableInfo = GetTableInfo<TEntity>();
+            ITableInfoBase tableInfo = GetTableInfo<TEntity>();
 
             if (string.IsNullOrWhiteSpace(orderByQuery))
             {
@@ -66,7 +66,7 @@ namespace Dapperer.QueryBuilders.MsSql
             else
             {
                 pagingSql.Items = string.Format("SELECT DISTINCT {0}.* FROM {0} {1} {2} OFFSET {3} ROWS FETCH NEXT {4} ROWS ONLY", tableInfo.TableName, filterQuery, orderByQuery, skip, take);
-                pagingSql.Count = string.Format("SELECT CAST(COUNT(DISTINCT TestTable.Id) AS Int) AS total FROM {0} {1}", tableInfo.TableName, filterQuery);
+                pagingSql.Count = string.Format("SELECT CAST(COUNT(DISTINCT {0}.{1}) AS Int) AS total FROM {0} {2}", tableInfo.TableName, tableInfo.Key, filterQuery);
             }
 
             return pagingSql;
