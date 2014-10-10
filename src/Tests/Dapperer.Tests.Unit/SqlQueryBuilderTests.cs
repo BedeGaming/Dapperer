@@ -105,7 +105,7 @@ namespace Dapperer.Tests.Unit
         [Test]
         public void InsertQuery_EntityWithAutoIncrementingPrimaryKey_DoesnotIncludePrimaryKeyInInsert()
         {
-            const string expectedSql = "INSERT INTO TestTable (Name) VALUES (@Name);SELECT CAST(SCOPE_IDENTITY() as Int);";
+            const string expectedSql = "INSERT INTO TestTable ([Name]) VALUES (@Name);SELECT CAST(SCOPE_IDENTITY() as Int);";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
             string sql = queryBuilder.InsertQuery<TestEntityWithAutoIncreamentId, int>();
@@ -116,7 +116,7 @@ namespace Dapperer.Tests.Unit
         [Test]
         public void InsertQuery_EntityWithoutAutoIncrementingPrimaryKey_IncludePrimaryKeyInInsert()
         {
-            const string expectedSql = "INSERT INTO TestTable (Id,Name) VALUES (@Id,@Name);";
+            const string expectedSql = "INSERT INTO TestTable ([Id],[Name]) VALUES (@Id,@Name);";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
             string sql = queryBuilder.InsertQuery<TestEntityWithoutAutoIncreamentId, int>();
@@ -138,7 +138,7 @@ namespace Dapperer.Tests.Unit
         [Test]
         public void UpdateQuery_EntityWithTableSpecified_ReturnExpectedInsertQuery()
         {
-            const string expectedSql = "UPDATE TestTable SETName = @NameWHERE Id = @Id;";
+            const string expectedSql = "UPDATE TestTable SET[Name] = @NameWHERE [Id] = @Id;";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
             string sql = queryBuilder.UpdateQuery<TestEntityWithAutoIncreamentId>();

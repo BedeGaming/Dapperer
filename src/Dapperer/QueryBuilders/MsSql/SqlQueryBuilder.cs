@@ -161,7 +161,7 @@ namespace Dapperer.QueryBuilders.MsSql
             var values = new List<string>();
             foreach (ColumnInfo columnInfo in columsToInsert)
             {
-                fields.Add(columnInfo.ColumnName);
+                fields.Add(string.Format("[{0}]", columnInfo.ColumnName));
                 values.Add("@" + columnInfo.FieldName);
             }
 
@@ -195,11 +195,11 @@ namespace Dapperer.QueryBuilders.MsSql
             {
                 if (columnInfo.ColumnName == tableInfo.Key)
                 {
-                    predicate = string.Format("{0} = @{1}", columnInfo.ColumnName, columnInfo.FieldName);
+                    predicate = string.Format("[{0}] = @{1}", columnInfo.ColumnName, columnInfo.FieldName);
                 }
                 else
                 {
-                    updates.Add(string.Format("{0} = @{1}", columnInfo.ColumnName, columnInfo.FieldName));
+                    updates.Add(string.Format("[{0}] = @{1}", columnInfo.ColumnName, columnInfo.FieldName));
                 }
             }
 
