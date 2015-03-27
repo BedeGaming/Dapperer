@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Dapper;
 
@@ -117,6 +119,78 @@ namespace Dapperer
 
                 return PageResults(skip, take, totalItems, items);
             }
+        }
+
+        protected async Task PopulateAsync<TForeignEntity, TForeignEntityPrimaryKey>(
+            Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
+            Expression<Func<TEntity, TForeignEntity>> foreignEntity,
+            IEnumerable<TEntity> entities)
+            where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
+        {
+            if (entities == null)
+                return;
+
+            var entityLoader = new OneToOneEntityLoader<TEntity, TPrimaryKey, TForeignEntity, TForeignEntityPrimaryKey>(
+                CreateConnection,
+                _queryBuilder,
+                foreignKey,
+                foreignEntity);
+
+            await entityLoader.PopulateAsync(entities.ToArray()).ConfigureAwait(false);
+        }
+
+        protected async Task PopulateAsync<TForeignEntity, TForeignEntityPrimaryKey>(
+            Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
+            Expression<Func<TEntity, IList<TForeignEntity>>> foreignEntityCollection,
+            IEnumerable<TEntity> entities)
+            where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
+        {
+            if (entities == null)
+                return;
+
+            var entityLoader = new OneToManyEntityLoader<TEntity, TPrimaryKey, TForeignEntity, TForeignEntityPrimaryKey>(
+                CreateConnection,
+                _queryBuilder,
+                foreignKey,
+                foreignEntityCollection);
+
+            await entityLoader.PopulateAsync(entities.ToArray()).ConfigureAwait(false);
+        }
+
+        protected async Task PopulateAsync<TForeignEntity, TForeignEntityPrimaryKey>(
+            Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
+            Expression<Func<TEntity, TForeignEntity>> foreignEntity,
+            params TEntity[] entities)
+            where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
+        {
+            if (!entities.Any())
+                return;
+
+            var entityLoader = new OneToOneEntityLoader<TEntity, TPrimaryKey, TForeignEntity, TForeignEntityPrimaryKey>(
+                CreateConnection,
+                _queryBuilder,
+                foreignKey,
+                foreignEntity);
+
+            await entityLoader.PopulateAsync(entities).ConfigureAwait(false);
+        }
+
+        protected async Task PopulateAsync<TForeignEntity, TForeignEntityPrimaryKey>(
+            Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
+            Expression<Func<TEntity, IList<TForeignEntity>>> foreignEntityCollection,
+            params TEntity[] entities)
+            where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
+        {
+            if (!entities.Any())
+                return;
+
+            var entityLoader = new OneToManyEntityLoader<TEntity, TPrimaryKey, TForeignEntity, TForeignEntityPrimaryKey>(
+                CreateConnection,
+                _queryBuilder,
+                foreignKey,
+                foreignEntityCollection);
+
+            await entityLoader.PopulateAsync(entities).ConfigureAwait(false);
         }
     }
 }

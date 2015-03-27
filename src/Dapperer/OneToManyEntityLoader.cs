@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Dapper;
 
 namespace Dapperer
@@ -39,6 +40,19 @@ namespace Dapperer
             using (IDbConnection connection = _getConnection())
             {
                 foreignEntities = connection.Query<TForeignEntity>(_sql, new { ForeignKeys = keys }).ToList();
+            }
+
+            PopulateEntities(entities, foreignEntities);
+        }
+
+        public async Task PopulateAsync(params TEntity[] entities)
+        {
+            IEnumerable<TPrimaryKey> keys = GetKeys(entities);
+
+            IList<TForeignEntity> foreignEntities;
+            using (IDbConnection connection = _getConnection())
+            {
+                foreignEntities = (await connection.QueryAsync<TForeignEntity>(_sql, new { ForeignKeys = keys }).ConfigureAwait(false)).ToList();
             }
 
             PopulateEntities(entities, foreignEntities);
