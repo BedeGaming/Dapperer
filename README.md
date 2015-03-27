@@ -7,6 +7,14 @@ Dapperer is an extension for [Dapper](https://github.com/StackExchange/dapper-do
 - Page-able queries
 - Cache-able query builder for the basic CURD operation queries. 
 
+# Nuget
+https://www.nuget.org/packages/Dapperer
+
+To install Dapperer, run the following command in the Package Manager Console
+```
+PM> Install-Package Dapperer
+```
+
 # Walk-through by example - Dapperer.TestApiApp
 
 This is just a test application, ignore that the database entities are exposed to outside and error handling etc.
