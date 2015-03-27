@@ -47,11 +47,14 @@
     <Compile Include="ColumnAttribute.cs" />
     <Compile Include="ColumnInfo.cs" />
     <Compile Include="DefaultDappererSettings.cs" />
+    <Compile Include="EntityLoader.cs" />
     <Compile Include="IDappererSettings.cs" />
     <Compile Include="IQueryBuilder.cs" />
     <Compile Include="DbFactories\SqlDbFactory.cs" />
     <Compile Include="IDbFactory.cs" />
     <Compile Include="IIdentifier.cs" />
+    <Compile Include="OneToManyEntityLoader.cs" />
+    <Compile Include="OneToOneEntityLoader.cs" />
     <Compile Include="QueryBuilders\MsSql\IntTableValuedParams.cs" />
     <Compile Include="ITableInfoBase.cs" />
     <Compile Include="Page.cs" />

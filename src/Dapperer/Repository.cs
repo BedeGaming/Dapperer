@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Dapper;
 
 namespace Dapperer
@@ -154,7 +153,8 @@ namespace Dapperer
             Populate<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey, foreignEntityCollection, entities.ToArray());
         }
 
-        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
+        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(
+            Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
             Expression<Func<TEntity, TForeignEntity>> foreignEntity,
             params TEntity[] entities)
             where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
@@ -162,26 +162,17 @@ namespace Dapperer
             if (!entities.Any())
                 return;
 
-            string sql = _queryBuilder.GetByPrimaryKeysQuery<TForeignEntity>();
-            Func<TEntity, TForeignEntityPrimaryKey> getForeignKey = foreignKey.Compile();
-            IEnumerable<TForeignEntityPrimaryKey> keys = entities.Select(getForeignKey);
+            var entityLoader = new OneToOneEntityLoader<TEntity, TPrimaryKey, TForeignEntity, TForeignEntityPrimaryKey>(
+                CreateConnection,
+                _queryBuilder,
+                foreignKey,
+                foreignEntity);
 
-            IList<TForeignEntity> foreignEntities;
-            using (IDbConnection connection = CreateConnection())
-            {
-                foreignEntities = connection.Query<TForeignEntity>(sql, new { Keys = keys }).ToList();
-            }
-
-            Action<TEntity, TForeignEntity> setter = GetSetter(foreignEntity);
-
-            foreach (TEntity entity in entities)
-            {
-                TForeignEntityPrimaryKey foreignEntityKey = getForeignKey(entity);
-                setter(entity, foreignEntities.FirstOrDefault(fe => Equals(foreignEntityKey, fe.GetIdentity())));
-            }
+            entityLoader.Populate(entities);
         }
 
-        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
+        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(
+            Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
             Expression<Func<TEntity, IList<TForeignEntity>>> foreignEntityCollection,
             params TEntity[] entities)
             where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
@@ -189,40 +180,13 @@ namespace Dapperer
             if (!entities.Any())
                 return;
 
-            ITableInfoBase foreignTableInfo = _queryBuilder.GetBaseTableInfo<TForeignEntity>();
-            string foreignKeyColum = GetForeignKeyColumn<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey);
+            var entityLoader = new OneToManyEntityLoader<TEntity, TPrimaryKey, TForeignEntity, TForeignEntityPrimaryKey>(
+                CreateConnection, 
+                _queryBuilder, 
+                foreignKey, 
+                foreignEntityCollection);
 
-            string sql = string.Format("SELECT * FROM {0} WHERE {1} IN @ForeignKeys", foreignTableInfo.TableName, foreignKeyColum);
-            IEnumerable<TPrimaryKey> keys = entities.Select(e => e.GetIdentity());
-            IList<TForeignEntity> foreignEntities;
-
-            using (IDbConnection connection = CreateConnection())
-            {
-                foreignEntities = connection.Query<TForeignEntity>(sql, new { ForeignKeys = keys }).ToList();
-            }
-
-            Action<TEntity, IList<TForeignEntity>> setter = GetSetter(foreignEntityCollection);
-            Func<TForeignEntity, TPrimaryKey> getForeignKey = foreignKey.Compile();
-
-            foreach (TEntity entity in entities)
-            {
-                TPrimaryKey key = entity.GetIdentity();
-                setter(entity, foreignEntities.Where(se => Equals(getForeignKey(se), key)).ToList());
-            }
-        }
-
-        private static Action<TEntity, TReferenceEntity> GetSetter<TReferenceEntity>(Expression<Func<TEntity, TReferenceEntity>> foreignEntity)
-            where TReferenceEntity : class
-        {
-            ParameterExpression valueParameterExpression = Expression.Parameter(typeof(TReferenceEntity));
-            Expression targetExpression = foreignEntity.Body is UnaryExpression ? ((UnaryExpression)foreignEntity.Body).Operand : foreignEntity.Body;
-
-            Expression<Action<TEntity, TReferenceEntity>> assign = Expression.Lambda<Action<TEntity, TReferenceEntity>>(
-                Expression.Assign(targetExpression, Expression.Convert(valueParameterExpression, targetExpression.Type)),
-                foreignEntity.Parameters.Single(),
-                valueParameterExpression);
-
-            return assign.Compile();
+            entityLoader.Populate(entities);
         }
 
         protected Page<TEntity> Page(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null)
@@ -257,25 +221,6 @@ namespace Dapperer
                 TotalItems = totalItems,
                 Items = items
             };
-        }
-
-        private static string GetForeignKeyColumn<TSubEntity, TSubEntityPrimaryKey>(Expression<Func<TSubEntity, TPrimaryKey>> foreignKey)
-            where TSubEntity : class, IIdentifier<TSubEntityPrimaryKey>, new()
-        {
-            var memberExpr = foreignKey.Body as MemberExpression;
-            if (memberExpr == null)
-            {
-                var unaryExpr = foreignKey.Body as UnaryExpression;
-                if (unaryExpr != null && unaryExpr.NodeType == ExpressionType.Convert)
-                    memberExpr = unaryExpr.Operand as MemberExpression;
-            }
-
-            if (memberExpr != null && memberExpr.Member.MemberType == MemberTypes.Property)
-            {
-                return memberExpr.Member.Name;
-            }
-
-            throw new ArgumentException("No foreign key property reference expression was found.", "foreignKey");
         }
 
         private PagingSql GetPagingSql(int skip, int take, string filterQuery, string orderByQuery)
