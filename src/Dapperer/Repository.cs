@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Dapper;
-using Dapperer.QueryBuilders;
 
 namespace Dapperer
 {
@@ -15,7 +14,7 @@ namespace Dapperer
     /// </summary>
     /// <typeparam name="TEntity">Entity type</typeparam>
     /// <typeparam name="TPrimaryKey">Primary key type either</typeparam>
-    public abstract class Repository<TEntity, TPrimaryKey>
+    public abstract partial class Repository<TEntity, TPrimaryKey>
         where TEntity : class, IIdentifier<TPrimaryKey>, new()
     {
         private readonly IQueryBuilder _queryBuilder;
@@ -226,33 +225,9 @@ namespace Dapperer
             return assign.Compile();
         }
 
-        private static string GetForeignKeyColumn<TSubEntity, TSubEntityPrimaryKey>(Expression<Func<TSubEntity, TPrimaryKey>> foreignKey)
-            where TSubEntity : class, IIdentifier<TSubEntityPrimaryKey>, new()
-        {
-            var memberExpr = foreignKey.Body as MemberExpression;
-            if (memberExpr == null)
-            {
-                var unaryExpr = foreignKey.Body as UnaryExpression;
-                if (unaryExpr != null && unaryExpr.NodeType == ExpressionType.Convert)
-                    memberExpr = unaryExpr.Operand as MemberExpression;
-            }
-
-            if (memberExpr != null && memberExpr.Member.MemberType == MemberTypes.Property)
-            {
-                return memberExpr.Member.Name;
-            }
-
-            throw new ArgumentException("No foreign key property reference expression was found.", "foreignKey");
-        }
-
         protected Page<TEntity> Page(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null)
         {
-            if (skip < 0)
-                throw new ArgumentException("Invalid skip value", "skip");
-            if (take <= 0)
-                throw new ArgumentException("Invalid take value", "take");
-
-            PagingSql pagingSql = _queryBuilder.PageQuery<TEntity>(skip, take, orderByQuery, filterQuery);
+            PagingSql pagingSql = GetPagingSql(skip, take, filterQuery, orderByQuery);
 
             using (IDbConnection connection = CreateConnection())
             {
@@ -282,6 +257,36 @@ namespace Dapperer
                 TotalItems = totalItems,
                 Items = items
             };
+        }
+
+        private static string GetForeignKeyColumn<TSubEntity, TSubEntityPrimaryKey>(Expression<Func<TSubEntity, TPrimaryKey>> foreignKey)
+            where TSubEntity : class, IIdentifier<TSubEntityPrimaryKey>, new()
+        {
+            var memberExpr = foreignKey.Body as MemberExpression;
+            if (memberExpr == null)
+            {
+                var unaryExpr = foreignKey.Body as UnaryExpression;
+                if (unaryExpr != null && unaryExpr.NodeType == ExpressionType.Convert)
+                    memberExpr = unaryExpr.Operand as MemberExpression;
+            }
+
+            if (memberExpr != null && memberExpr.Member.MemberType == MemberTypes.Property)
+            {
+                return memberExpr.Member.Name;
+            }
+
+            throw new ArgumentException("No foreign key property reference expression was found.", "foreignKey");
+        }
+
+        private PagingSql GetPagingSql(int skip, int take, string filterQuery, string orderByQuery)
+        {
+            if (skip < 0)
+                throw new ArgumentException("Invalid skip value", "skip");
+            if (take <= 0)
+                throw new ArgumentException("Invalid take value", "take");
+
+            PagingSql pagingSql = _queryBuilder.PageQuery<TEntity>(skip, take, orderByQuery, filterQuery);
+            return pagingSql;
         }
     }
 }
