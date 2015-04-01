@@ -261,15 +261,14 @@ namespace Dapperer
             };
         }
 
-        private PagingSql GetPagingSql(int skip, int take, string filterQuery, string orderByQuery)
+        protected PagingSql GetPagingSql(int skip, int take, string filterQuery, string orderByQuery)
         {
             if (skip < 0)
                 throw new ArgumentException("Invalid skip value", "skip");
             if (take <= 0)
                 throw new ArgumentException("Invalid take value", "take");
 
-            PagingSql pagingSql = _queryBuilder.PageQuery<TEntity>(skip, take, orderByQuery, filterQuery);
-            return pagingSql;
+            return _queryBuilder.PageQuery<TEntity>(skip, take, orderByQuery, filterQuery);
         }
     }
 }
