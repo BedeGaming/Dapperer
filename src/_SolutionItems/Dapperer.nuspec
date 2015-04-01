@@ -8,6 +8,7 @@
     <description>Dapperer an extension for Dapper</description>
     <language>en-GB</language>
     <tags>Dapper</tags>
+    <projectUrl>https://github.com/BedeGaming/Dapperer</projectUrl>
     <dependencies>
       <dependency id="Dapper" version="1.39" />
     </dependencies>
