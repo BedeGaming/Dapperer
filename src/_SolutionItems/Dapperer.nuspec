@@ -6,6 +6,8 @@
     <authors>Joseph Jeganathan</authors>
     <owners>Joseph Jeganathan</owners>
     <description>Dapperer an extension for Dapper</description>
+    <language>en-GB</language>
+    <tags>Dapper</tags>
     <dependencies>
       <dependency id="Dapper" version="1.39" />
     </dependencies>
