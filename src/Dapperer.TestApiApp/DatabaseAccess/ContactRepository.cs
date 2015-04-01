@@ -15,7 +15,7 @@ namespace Dapperer.TestApiApp.DatabaseAccess
 
         public virtual void PopulateAddresses(Contact contact)
         {
-            Populate<Address, int>(address => address.ContactId, c => c.Addresses, contact);
+            PopulateOneToMany<Address, int>(address => address.ContactId, c => c.Addresses, contact);
         }
 
         public virtual Contact GetContactByName(string name)
