@@ -131,7 +131,7 @@ namespace Dapperer
             return _queryBuilder.GetBaseTableInfo<TEntity>();
         }
 
-        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
+        protected void PopulateOneToOne<TForeignEntity, TForeignEntityPrimaryKey>(Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
             Expression<Func<TEntity, TForeignEntity>> foreignEntity,
             IEnumerable<TEntity> entities)
             where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
@@ -139,10 +139,19 @@ namespace Dapperer
             if (entities == null)
                 return;
 
-            Populate(foreignKey, foreignEntity, entities.ToArray());
+            PopulateOneToOne(foreignKey, foreignEntity, entities.ToArray());
         }
 
-        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
+        [ObsoleteAttribute("This method is obsolete. Call PopulateOneToOne instead.", false)]
+        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
+            Expression<Func<TEntity, TForeignEntity>> foreignEntity,
+            IEnumerable<TEntity> entities)
+            where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
+        {
+            PopulateOneToOne(foreignKey, foreignEntity, entities.ToArray());
+        }
+
+        protected void PopulateOneToMany<TForeignEntity, TForeignEntityPrimaryKey>(Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
             Expression<Func<TEntity, IList<TForeignEntity>>> foreignEntityCollection,
             IEnumerable<TEntity> entities)
             where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
@@ -150,10 +159,19 @@ namespace Dapperer
             if (entities == null)
                 return;
 
-            Populate<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey, foreignEntityCollection, entities.ToArray());
+            PopulateOneToMany<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey, foreignEntityCollection, entities.ToArray());
         }
 
-        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(
+        [ObsoleteAttribute("This method is obsolete. Call PopulateOneToMany instead.", false)]
+        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
+            Expression<Func<TEntity, IList<TForeignEntity>>> foreignEntityCollection,
+            IEnumerable<TEntity> entities)
+            where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
+        {
+            PopulateOneToMany<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey, foreignEntityCollection, entities.ToArray());
+        }
+
+        protected void PopulateOneToOne<TForeignEntity, TForeignEntityPrimaryKey>(
             Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
             Expression<Func<TEntity, TForeignEntity>> foreignEntity,
             params TEntity[] entities)
@@ -171,7 +189,17 @@ namespace Dapperer
             entityLoader.Populate(entities);
         }
 
+        [ObsoleteAttribute("This method is obsolete. Call PopulateOneToOne instead.", false)]
         protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(
+            Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
+            Expression<Func<TEntity, TForeignEntity>> foreignEntity,
+            params TEntity[] entities)
+            where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
+        {
+            PopulateOneToOne(foreignKey, foreignEntity, entities);
+        }
+
+        protected void PopulateOneToMany<TForeignEntity, TForeignEntityPrimaryKey>(
             Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
             Expression<Func<TEntity, IList<TForeignEntity>>> foreignEntityCollection,
             params TEntity[] entities)
@@ -187,6 +215,16 @@ namespace Dapperer
                 foreignEntityCollection);
 
             entityLoader.Populate(entities);
+        }
+
+        [ObsoleteAttribute("This method is obsolete. Call PopulateOneToMany instead.", false)]
+        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(
+            Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
+            Expression<Func<TEntity, IList<TForeignEntity>>> foreignEntityCollection,
+            params TEntity[] entities)
+            where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
+        {
+            PopulateOneToMany<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey, foreignEntityCollection, entities);
         }
 
         protected Page<TEntity> Page(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null)

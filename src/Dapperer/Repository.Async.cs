@@ -121,7 +121,7 @@ namespace Dapperer
             }
         }
 
-        protected async Task PopulateAsync<TForeignEntity, TForeignEntityPrimaryKey>(
+        protected async Task PopulateOneToOneAsync<TForeignEntity, TForeignEntityPrimaryKey>(
             Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
             Expression<Func<TEntity, TForeignEntity>> foreignEntity,
             IEnumerable<TEntity> entities)
@@ -139,7 +139,7 @@ namespace Dapperer
             await entityLoader.PopulateAsync(entities.ToArray()).ConfigureAwait(false);
         }
 
-        protected async Task PopulateAsync<TForeignEntity, TForeignEntityPrimaryKey>(
+        protected async Task PopulateOneToManyAsync<TForeignEntity, TForeignEntityPrimaryKey>(
             Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
             Expression<Func<TEntity, IList<TForeignEntity>>> foreignEntityCollection,
             IEnumerable<TEntity> entities)
@@ -157,7 +157,7 @@ namespace Dapperer
             await entityLoader.PopulateAsync(entities.ToArray()).ConfigureAwait(false);
         }
 
-        protected async Task PopulateAsync<TForeignEntity, TForeignEntityPrimaryKey>(
+        protected async Task PopulateOneToOneAsync<TForeignEntity, TForeignEntityPrimaryKey>(
             Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
             Expression<Func<TEntity, TForeignEntity>> foreignEntity,
             params TEntity[] entities)
@@ -175,7 +175,7 @@ namespace Dapperer
             await entityLoader.PopulateAsync(entities).ConfigureAwait(false);
         }
 
-        protected async Task PopulateAsync<TForeignEntity, TForeignEntityPrimaryKey>(
+        protected async Task PopulateOneToManyAsync<TForeignEntity, TForeignEntityPrimaryKey>(
             Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
             Expression<Func<TEntity, IList<TForeignEntity>>> foreignEntityCollection,
             params TEntity[] entities)
