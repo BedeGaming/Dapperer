@@ -72,8 +72,6 @@ namespace Dapperer
 
             using (IDbConnection connection = CreateConnection())
             {
-                connection.Open();
-
                 return await connection.ExecuteAsync(sql, entities).ConfigureAwait(false);
             }
         }

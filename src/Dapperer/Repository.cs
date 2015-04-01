@@ -91,7 +91,6 @@ namespace Dapperer
 
             using (IDbConnection connection = CreateConnection())
             {
-                connection.Open();
                 return connection.Execute(sql, entities);
             }
         }
