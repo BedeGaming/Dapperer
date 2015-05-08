@@ -238,6 +238,16 @@ namespace Dapperer
                 return PageResults(skip, take, totalItems, items);
             }
         }
+        public Page<TEntity> Page(string query, string countQuery, int skip, int take, object filterParams = null, string orderByQuery = null)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                int totalItems = connection.Query<int>(countQuery, filterParams).SingleOrDefault();
+                List<TEntity> items =connection.Query<TEntity>(query, filterParams).ToList();
+
+                return PageResults(skip, take, totalItems, items);
+            }
+        }
 
         protected static Page<T> PageResults<T>(int skip, int take, int totalItems, List<T> items)
             where T : class 
