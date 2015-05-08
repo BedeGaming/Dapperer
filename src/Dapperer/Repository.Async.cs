@@ -137,12 +137,12 @@ namespace Dapperer
             await entityLoader.PopulateAsync(entities.ToArray()).ConfigureAwait(false);
         }
 
-        public async Task<Page<TEntity>> PageAsync(string query, string countQuery, int skip, int take, object filterParams = null, string orderByQuery = null)
+        public async Task<Page<TEntity>> PageAsync(string query, string countQuery, int skip, int take, object queryParams = null, string orderByQuery = null)
         {
             using (IDbConnection connection = CreateConnection())
             {
-                int totalItems = (await connection.QueryAsync<int>(countQuery, filterParams).ConfigureAwait(false)).SingleOrDefault();
-                List<TEntity> items = (await connection.QueryAsync<TEntity>(query, filterParams).ConfigureAwait(false)).ToList();
+                int totalItems = (await connection.QueryAsync<int>(countQuery, queryParams).ConfigureAwait(false)).SingleOrDefault();
+                List<TEntity> items = (await connection.QueryAsync<TEntity>(query, queryParams).ConfigureAwait(false)).ToList();
 
                 return PageResults(skip, take, totalItems, items);
             }
