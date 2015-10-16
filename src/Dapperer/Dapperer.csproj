@@ -53,6 +53,7 @@
     <Compile Include="DbFactories\SqlDbFactory.cs" />
     <Compile Include="IDbFactory.cs" />
     <Compile Include="IIdentifier.cs" />
+    <Compile Include="IRepository.cs" />
     <Compile Include="OneToManyEntityLoader.cs" />
     <Compile Include="OneToOneEntityLoader.cs" />
     <Compile Include="QueryBuilders\MsSql\IntTableValuedParams.cs" />

@@ -13,7 +13,7 @@ namespace Dapperer
     /// </summary>
     /// <typeparam name="TEntity">Entity type</typeparam>
     /// <typeparam name="TPrimaryKey">Primary key type either</typeparam>
-    public abstract partial class Repository<TEntity, TPrimaryKey>
+    public abstract partial class Repository<TEntity, TPrimaryKey> : IRepository<TEntity, TPrimaryKey> 
         where TEntity : class, IIdentifier<TPrimaryKey>, new()
     {
         private readonly IQueryBuilder _queryBuilder;
