@@ -87,7 +87,7 @@ namespace Dapperer
 
         public virtual int Create(IEnumerable<TEntity> entities)
         {
-            string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>(true);
+            string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
 
             using (IDbConnection connection = CreateConnection())
             {

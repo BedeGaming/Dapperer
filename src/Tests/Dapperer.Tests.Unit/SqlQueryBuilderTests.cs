@@ -105,7 +105,7 @@ namespace Dapperer.Tests.Unit
         [Test]
         public void InsertQuery_EntityWithAutoIncrementingPrimaryKey_DoesnotIncludePrimaryKeyInInsert()
         {
-            const string expectedSql = "INSERT INTO TestTable ([Name]) VALUES (@Name);SELECT CAST(SCOPE_IDENTITY() as Int);";
+            const string expectedSql = "INSERT INTO TestTable ([Name]) OUTPUT inserted.Id VALUES (@Name);";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
             string sql = queryBuilder.InsertQuery<TestEntityWithAutoIncreamentId, int>();
