@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapperer", "Dapperer\Dapperer.csproj", "{7A2A3C1D-FC60-4DCA-9692-4CBA76215F6D}"
 EndProject
@@ -13,7 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapperer.TestApiApp", "Dapp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7360E857-828B-4867-8374-DB42D5D14055}"
 	ProjectSection(SolutionItems) = preProject
-		_SolutionItems\Dapperer.nuspec = _SolutionItems\Dapperer.nuspec
 		_SolutionItems\TestTables.sql = _SolutionItems\TestTables.sql
 	EndProjectSection
 EndProject
@@ -41,5 +40,8 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7F5F6AE1-193E-43C0-80BB-2C5F7C4129C5} = {8A7D4062-4920-49B7-8C8C-71F6FA4C9CFC}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {209C82DD-F284-4B84-B119-07B08A58F948}
 	EndGlobalSection
 EndGlobal

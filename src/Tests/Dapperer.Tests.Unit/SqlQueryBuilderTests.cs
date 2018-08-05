@@ -1,14 +1,13 @@
 ﻿using System;
 using Dapperer.QueryBuilders;
 using Dapperer.QueryBuilders.MsSql;
-using NUnit.Framework;
+using Xunit;
 
 namespace Dapperer.Tests.Unit
 {
-    [TestFixture]
     public class SqlQueryBuilderTests
     {
-        [Test]
+        [Fact]
         public void GetByPrimaryKeyQuery_EntityWithPrimaryKey_ReturnQueryAsExpected()
         {
             const string expectedSql = "SELECT * FROM TestTable WHERE Id = @Key";
@@ -16,43 +15,43 @@ namespace Dapperer.Tests.Unit
 
             string sql = queryBuilder.GetByPrimaryKeyQuery<TestEntityWithAutoIncreamentId>();
 
-            Assert.AreEqual(expectedSql, ReplaceNextLineAndTab(sql));
+            Assert.Equal(expectedSql, ReplaceNextLineAndTab(sql));
         }
 
-        [Test]
+        [Fact]
         public void GetByPrimaryKeyQuery_EntityWithoutTableSpecified_ThrowException()
         {
             const string expectedExceptionMessage = "Table attribute must be specified to the Entity";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.GetByPrimaryKeyQuery<TestEntityNoTableSpecified>());
+            var exception = Assert.Throws<InvalidOperationException>(() => queryBuilder.GetByPrimaryKeyQuery<TestEntityNoTableSpecified>());
 
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+            Assert.Equal(expectedExceptionMessage, exception.Message);
         }
 
-        [Test]
+        [Fact]
         public void GetByPrimaryKeyQuery_EntityWithoutPrimaryKey_ThrowException()
         {
             const string expectedExceptionMessage = "Primary key must be specified to the table";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.GetByPrimaryKeyQuery<TestEntityWithoutPrimaryKey>());
+            var exception = Assert.Throws<InvalidOperationException>(() => queryBuilder.GetByPrimaryKeyQuery<TestEntityWithoutPrimaryKey>());
 
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+            Assert.Equal(expectedExceptionMessage, exception.Message);
         }
 
-        [Test]
+        [Fact]
         public void PageQuery_EntityWithoutTableSpecified_ThrowException()
         {
             const string expectedExceptionMessage = "Table attribute must be specified to the Entity";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.PageQuery<TestEntityNoTableSpecified>(2, 5));
+            var exception = Assert.Throws<InvalidOperationException>(() => queryBuilder.PageQuery<TestEntityNoTableSpecified>(2, 5));
 
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+            Assert.Equal(expectedExceptionMessage, exception.Message);
         }
 
-        [Test]
+        [Fact]
         public void PageQuery_NoOrderBySpecified_PrimaryKeyToOrderIsUsed()
         {
             const string expectedItemsSql = "SELECT * FROM TestTable ORDER BY Id OFFSET 2 ROWS FETCH NEXT 5 ROWS ONLY";
@@ -61,11 +60,11 @@ namespace Dapperer.Tests.Unit
 
             PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 5);
 
-            Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
-            Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
+            Assert.Equal(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
+            Assert.Equal(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
         }
 
-        [Test]
+        [Fact]
         public void PageQuery_OrderBySpecified_PassedOrderByIsUsed()
         {
             const string expectedItemsSql = "SELECT * FROM TestTable ORDER BY Name OFFSET 2 ROWS FETCH NEXT 5 ROWS ONLY";
@@ -74,11 +73,11 @@ namespace Dapperer.Tests.Unit
 
             PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 5, orderByQuery: "ORDER BY Name");
 
-            Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
-            Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
+            Assert.Equal(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
+            Assert.Equal(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
         }
 
-        [Test]
+        [Fact]
         public void PageQuery_FilterBySpecified_PassedFilterQueryIsUsed()
         {
             const string expectedItemsSql = "SELECT DISTINCT TestTable.* FROM TestTable WHERE BY Name like 'J%' ORDER BY Id OFFSET 2 ROWS FETCH NEXT 5 ROWS ONLY";
@@ -87,22 +86,22 @@ namespace Dapperer.Tests.Unit
 
             PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 5, filterQuery: "WHERE BY Name like 'J%'");
 
-            Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
-            Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
+            Assert.Equal(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
+            Assert.Equal(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
         }
 
-        [Test]
+        [Fact]
         public void InsertQuery_EntityWithoutTableSpecified_ThrowException()
         {
             const string expectedExceptionMessage = "Table attribute must be specified to the Entity";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.InsertQuery<TestEntityNoTableSpecified, int>());
+            var exception = Assert.Throws<InvalidOperationException>(() => queryBuilder.InsertQuery<TestEntityNoTableSpecified, int>());
 
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+            Assert.Equal(expectedExceptionMessage, exception.Message);
         }
 
-        [Test]
+        [Fact]
         public void InsertQuery_EntityWithAutoIncrementingPrimaryKey_DoesnotIncludePrimaryKeyInInsert()
         {
             const string expectedSql = "INSERT INTO TestTable ([Name]) OUTPUT inserted.Id VALUES (@Name);";
@@ -110,10 +109,10 @@ namespace Dapperer.Tests.Unit
 
             string sql = queryBuilder.InsertQuery<TestEntityWithAutoIncreamentId, int>();
 
-            Assert.AreEqual(expectedSql, ReplaceNextLineAndTab(sql));
+            Assert.Equal(expectedSql, ReplaceNextLineAndTab(sql));
         }
 
-        [Test]
+        [Fact]
         public void InsertQuery_EntityWithoutAutoIncrementingPrimaryKey_IncludePrimaryKeyInInsert()
         {
             const string expectedSql = "INSERT INTO TestTable ([Id],[Name]) VALUES (@Id,@Name);";
@@ -121,21 +120,21 @@ namespace Dapperer.Tests.Unit
 
             string sql = queryBuilder.InsertQuery<TestEntityWithoutAutoIncreamentId, int>();
 
-            Assert.AreEqual(expectedSql, ReplaceNextLineAndTab(sql));
+            Assert.Equal(expectedSql, ReplaceNextLineAndTab(sql));
         }
 
-        [Test]
+        [Fact]
         public void UpdateQuery_EntityWithoutTableSpecified_ThrowException()
         {
             const string expectedExceptionMessage = "Table attribute must be specified to the Entity";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.UpdateQuery<TestEntityNoTableSpecified>());
+            var exception = Assert.Throws<InvalidOperationException>(() => queryBuilder.UpdateQuery<TestEntityNoTableSpecified>());
 
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+            Assert.Equal(expectedExceptionMessage, exception.Message);
         }
 
-        [Test]
+        [Fact]
         public void UpdateQuery_EntityWithTableSpecified_ReturnExpectedInsertQuery()
         {
             const string expectedSql = "UPDATE TestTable SET[Name] = @NameWHERE [Id] = @Id;";
@@ -143,10 +142,10 @@ namespace Dapperer.Tests.Unit
 
             string sql = queryBuilder.UpdateQuery<TestEntityWithAutoIncreamentId>();
 
-            Assert.AreEqual(expectedSql, ReplaceNextLineAndTab(sql));
+            Assert.Equal(expectedSql, ReplaceNextLineAndTab(sql));
         }
 
-        [Test]
+        [Fact]
         public void DeleteQuery_EntityWithPrimaryKey_ReturnQueryAsExpected()
         {
             const string expectedSql = "DELETE FROM TestTable WHERE Id = @Key";
@@ -154,29 +153,29 @@ namespace Dapperer.Tests.Unit
 
             string sql = queryBuilder.DeleteQuery<TestEntityWithAutoIncreamentId>();
 
-            Assert.AreEqual(expectedSql, ReplaceNextLineAndTab(sql));
+            Assert.Equal(expectedSql, ReplaceNextLineAndTab(sql));
         }
 
-        [Test]
+        [Fact]
         public void DeleteQuery_EntityWithoutTableSpecified_ThrowException()
         {
             const string expectedExceptionMessage = "Table attribute must be specified to the Entity";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.DeleteQuery<TestEntityNoTableSpecified>());
+            var exception = Assert.Throws<InvalidOperationException>(() => queryBuilder.DeleteQuery<TestEntityNoTableSpecified>());
 
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+            Assert.Equal(expectedExceptionMessage, exception.Message);
         }
 
-        [Test]
+        [Fact]
         public void DeleteQuery_EntityWithoutPrimaryKey_ThrowException()
         {
             const string expectedExceptionMessage = "Primary key must be specified to the table";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.DeleteQuery<TestEntityWithoutPrimaryKey>());
+            var exception = Assert.Throws<InvalidOperationException>(() => queryBuilder.DeleteQuery<TestEntityWithoutPrimaryKey>());
 
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+            Assert.Equal(expectedExceptionMessage, exception.Message);
         }
 
         private string ReplaceNextLineAndTab(string sql)
