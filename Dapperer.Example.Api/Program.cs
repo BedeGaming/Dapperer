@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Dapperer.TestApiApp
+namespace Dapperer.Example.Api
 {
     public class Program
     {

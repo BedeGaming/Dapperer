@@ -1,7 +1,6 @@
-﻿using Dapperer.QueryBuilders;
-using Dapperer.TestApiApp.Entities;
+﻿using Dapperer.Example.Api.Entities;
 
-namespace Dapperer.TestApiApp.DatabaseAccess
+namespace Dapperer.Example.Api.DatabaseAccess
 {
     public class AddressRepository : Repository<Address, int>
     {

@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyModel;
 
-namespace Dapperer.TestApiApp
+namespace Dapperer.Example.Api
 {
     public class Startup
     {
