@@ -2,7 +2,7 @@
 
 [![Build history](https://buildstats.info/appveyor/chart/josephjeganathan/Dapperer)](https://ci.appveyor.com/project/josephjeganathan/Dapperer/history)
 
-[![Build status](https://ci.appveyor.com/api/projects/status/a2ibxbl95e3ogrgq?svg=true)](https://ci.appveyor.com/project/josephjeganathan/dapperer)
+[![Build status](https://ci.appveyor.com/api/projects/status/a2ibxbl95e3ogrgq?svg=true)](https://ci.appveyor.com/project/josephjeganathan/Dapperer) [![](http://img.shields.io/nuget/v/Dapperer.svg?style=flat-square)](http://www.nuget.org/packages/Dapperer/)  [![](http://img.shields.io/nuget/dt/Dapperer.svg?style=flat-square)](http://www.nuget.org/packages/Dapperer/)
 
 Dapperer is an extension for [Dapper](https://github.com/StackExchange/dapper-dot-net). It uses attributes on a database POCO entity classes to facilitate the followings.
 

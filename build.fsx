@@ -74,6 +74,22 @@ Target "Test" (fun () ->
     |> Seq.iter test
 )
 
+Target "Pack" (fun () ->
+
+    let setParams (p:PackParams) =
+        { p with
+            Project = "./Dapperer/Dapperer.csproj"
+            Configuration = "Release"
+            AdditionalArgs = 
+                [   "--no-build"
+                    "--verbosity minimal"
+                    "/p:PackageVersion=" + gitVersion.NuGetVersion
+                    "--include-symbols" ]
+        }
+
+    DotNetCli.Pack setParams
+)
+
 // --------------------------------------------------------------------------------------
 // Build order
 // --------------------------------------------------------------------------------------
@@ -82,5 +98,6 @@ Target "Test" (fun () ->
     ==> "Restore"
     ==> "Build"
     ==> "Test"
+    ==> "Pack"
 
-RunTargetOrDefault "Test"
+RunTargetOrDefault "Pack"
