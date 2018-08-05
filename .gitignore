@@ -30,8 +30,11 @@ _ReSharper*/
 db/tmp/
 *.cmpuo
 [Ll]ogs/
-src/packages/*
+packages/*
 test/node_modules/*
 *.ncrunch*
 build/temp.sql
-/src/.vs
+/.vs
+/paket-files
+/.fake
+/build
