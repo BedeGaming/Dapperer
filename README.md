@@ -1,5 +1,9 @@
 # Dapperer #
 
+[![Build history](https://buildstats.info/appveyor/chart/josephjeganathan/Dapperer)](https://ci.appveyor.com/project/josephjeganathan/Dapperer/history)
+
+[![Build status](https://ci.appveyor.com/api/projects/status/a2ibxbl95e3ogrgq?svg=true)](https://ci.appveyor.com/project/josephjeganathan/dapperer)
+
 Dapperer is an extension for [Dapper](https://github.com/StackExchange/dapper-dot-net). It uses attributes on a database POCO entity classes to facilitate the followings.
 
 - A generic repository for basic *CRUD* operations on a relational database with no SQL query.
@@ -92,7 +96,7 @@ builder.RegisterType<SqlQueryBuilder>().As<IQueryBuilder>().SingleInstance();
 
 ## Configurations 
 
-**Dapperer** need a concrete implementation of `IDappererSettings`, instead you could use `DefaultDappererSettings`. This currently require the following application settings.
+**Dapperer** need a concrete implementation of `IDappererSettings`, take a look at `DefaultDappererSettings` in the example project. 
 
 ```XML
 <add key="Dapperer.ConnectionString" value="Server=localhost;Database=dapper_test;Trusted_Connection=True;" />
@@ -103,3 +107,8 @@ builder.RegisterType<SqlQueryBuilder>().As<IQueryBuilder>().SingleInstance();
 **Dapperer** can be extended for different databases other than *SQL* database you must create the following for any new databases
 - QueryBuilder for the database which extends `IQueryBuilder`
 - DbFactory for creating database connection which extends `IDbFactory`
+
+# Contributing to Dapperer
+
+Please refer [CONTRIBUTING](CONTRIBUTING)
+
