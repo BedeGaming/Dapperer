@@ -21,52 +21,54 @@ namespace Dapperer.QueryBuilders.MsSql
         public string GetByPrimaryKeyQuery<TEntity>()
             where TEntity : class
         {
-            TableInfo tableInfo = GetTableInfo<TEntity>();
+            var tableInfo = GetTableInfo<TEntity>();
 
             if (string.IsNullOrWhiteSpace(tableInfo.Key))
                 throw new InvalidOperationException("Primary key must be specified to the table");
 
-            return string.Format("SELECT * FROM {0} WHERE {1} = @Key", tableInfo.TableName, tableInfo.Key);
+            return $"SELECT * FROM {tableInfo.TableName} WHERE {tableInfo.Key} = @Key";
         }
 
         public string GetByPrimaryKeysQuery<TEntity>()
             where TEntity : class
         {
-            TableInfo tableInfo = GetTableInfo<TEntity>();
+            var tableInfo = GetTableInfo<TEntity>();
 
             if (string.IsNullOrWhiteSpace(tableInfo.Key))
                 throw new InvalidOperationException("Primary key must be specified to the table");
 
-            return string.Format("SELECT * FROM {0} WHERE {1} IN @Keys", tableInfo.TableName, tableInfo.Key);
+            return $"SELECT * FROM {tableInfo.TableName} WHERE {tableInfo.Key} IN @Keys";
         }
 
         public string GetAll<TEntity>()
             where TEntity : class
         {
-            TableInfo tableInfo = GetTableInfo<TEntity>();
-            return string.Format("SELECT * FROM {0} ", tableInfo.TableName);
+            var tableInfo = GetTableInfo<TEntity>();
+            return $"SELECT * FROM {tableInfo.TableName}";
         }
 
         public PagingSql PageQuery<TEntity>(long skip, long take, string orderByQuery = null, string filterQuery = null)
             where TEntity : class
         {
-            ITableInfoBase tableInfo = GetTableInfo<TEntity>();
+            var tableInfo = GetTableInfo<TEntity>();
+            var tableName = tableInfo.TableName;
+            var primaryKey = tableInfo.Key;
 
             if (string.IsNullOrWhiteSpace(orderByQuery))
             {
-                orderByQuery = string.Format("ORDER BY {0}", tableInfo.Key);
+                orderByQuery = $"ORDER BY {primaryKey}";
             }
 
             var pagingSql = new PagingSql();
             if (string.IsNullOrWhiteSpace(filterQuery))
             {
-                pagingSql.Items = string.Format("SELECT * FROM {0} {1} OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", tableInfo.TableName, orderByQuery, skip, take);
-                pagingSql.Count = string.Format("SELECT CAST(COUNT(*) AS Int) AS total FROM {0}", tableInfo.TableName);
+                pagingSql.Items = $"SELECT * FROM {tableName} {orderByQuery} OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
+                pagingSql.Count = $"SELECT CAST(COUNT(*) AS Int) AS total FROM {tableName}";
             }
             else
             {
-                pagingSql.Items = string.Format("SELECT DISTINCT {0}.* FROM {0} {1} {2} OFFSET {3} ROWS FETCH NEXT {4} ROWS ONLY", tableInfo.TableName, filterQuery, orderByQuery, skip, take);
-                pagingSql.Count = string.Format("SELECT CAST(COUNT(DISTINCT {0}.{1}) AS Int) AS total FROM {0} {2}", tableInfo.TableName, tableInfo.Key, filterQuery);
+                pagingSql.Items = $"SELECT DISTINCT {tableName}.* FROM {tableName} {filterQuery} {orderByQuery} OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
+                pagingSql.Count = $"SELECT CAST(COUNT(DISTINCT {tableName}.{primaryKey}) AS Int) AS total FROM {tableName} {filterQuery}";
             }
 
             return pagingSql;
@@ -75,7 +77,7 @@ namespace Dapperer.QueryBuilders.MsSql
         public string InsertQuery<TEntity, TPrimaryKey>()
             where TEntity : class
         {
-            TableInfo tableInfo = GetTableInfo<TEntity>();
+            var tableInfo = GetTableInfo<TEntity>();
 
             lock (tableInfo)
             {
@@ -91,7 +93,7 @@ namespace Dapperer.QueryBuilders.MsSql
         public string UpdateQuery<TEntity>()
             where TEntity : class
         {
-            TableInfo tableInfo = GetTableInfo<TEntity>();
+            var tableInfo = GetTableInfo<TEntity>();
 
             lock (tableInfo)
             {
@@ -107,20 +109,20 @@ namespace Dapperer.QueryBuilders.MsSql
         public string DeleteQuery<TEntity>()
             where TEntity : class
         {
-            TableInfo tableInfo = GetTableInfo<TEntity>();
+            var tableInfo = GetTableInfo<TEntity>();
 
             if (string.IsNullOrWhiteSpace(tableInfo.Key))
                 throw new InvalidOperationException("Primary key must be specified to the table");
 
-            return DeleteQuery<TEntity>(string.Format("WHERE {0} = @Key", tableInfo.Key));
+            return DeleteQuery<TEntity>($"WHERE {tableInfo.Key} = @Key");
         }
 
         public string DeleteQuery<TEntity>(string filterQuery)
             where TEntity : class
         {
-            TableInfo tableInfo = GetTableInfo<TEntity>();
+            var tableInfo = GetTableInfo<TEntity>();
 
-            return string.Format("DELETE FROM {0} {1}", tableInfo.TableName, filterQuery);
+            return $"DELETE FROM {tableInfo.TableName} {filterQuery}";
         }
 
         public ITableInfoBase GetBaseTableInfo<TEntity>()
@@ -132,7 +134,7 @@ namespace Dapperer.QueryBuilders.MsSql
         private TableInfo GetTableInfo<TEntity>()
             where TEntity : class
         {
-            Type entityType = typeof(TEntity);
+            var entityType = typeof(TEntity);
             lock (_tableInfos)
             {
                 if (!_tableInfos.ContainsKey(entityType))
@@ -154,9 +156,9 @@ namespace Dapperer.QueryBuilders.MsSql
 
             var fields = new List<string>();
             var values = new List<string>();
-            foreach (ColumnInfo columnInfo in columsToInsert)
+            foreach (var columnInfo in columsToInsert)
             {
-                fields.Add(string.Format("[{0}]", columnInfo.ColumnName));
+                fields.Add($"[{columnInfo.ColumnName}]");
                 values.Add("@" + columnInfo.FieldName);
             }
 
@@ -172,23 +174,22 @@ namespace Dapperer.QueryBuilders.MsSql
         {
             string predicate = null;
             var updates = new List<string>();
-            foreach (ColumnInfo columnInfo in tableInfo.ColumnInfos)
+            foreach (var columnInfo in tableInfo.ColumnInfos)
             {
                 if (columnInfo.ColumnName == tableInfo.Key)
                 {
-                    predicate = string.Format("[{0}] = @{1}", columnInfo.ColumnName, columnInfo.FieldName);
+                    predicate = $"[{columnInfo.ColumnName}] = @{columnInfo.FieldName}";
                 }
                 else
                 {
-                    updates.Add(string.Format("[{0}] = @{1}", columnInfo.ColumnName, columnInfo.FieldName));
+                    updates.Add($"[{columnInfo.ColumnName}] = @{columnInfo.FieldName}");
                 }
             }
 
-            string sql = string.Format(
-                "UPDATE {0} SET\n" +
-                "\t{1}\n" +
-                "WHERE {2};",
-                tableInfo.TableName, string.Join(",\n\t", updates), predicate);
+            var sql =
+                $"UPDATE {tableInfo.TableName} SET\n" +
+                $"\t{string.Join(",\n\t", updates)}\n" +
+                $"WHERE {predicate};";
 
             tableInfo.SetUpdateSql(sql);
         }
@@ -202,7 +203,7 @@ namespace Dapperer.QueryBuilders.MsSql
 
             var tableInfo = new TableInfo(tableAttribute.Name);
 
-            foreach (PropertyInfo propertyInfo in entityType.GetProperties())
+            foreach (var propertyInfo in entityType.GetProperties())
             {
                 var columnAttribute = propertyInfo.GetCustomAttribute<ColumnAttribute>();
                 if (columnAttribute != null)

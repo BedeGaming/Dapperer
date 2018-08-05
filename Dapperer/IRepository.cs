@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Dapperer
 {
-    public interface IRepository<TEntity, TPrimaryKey> 
+    public interface IRepository<TEntity, in TPrimaryKey> 
         where TEntity : class, IIdentifier<TPrimaryKey>, new() 
     {
         TEntity GetSingleOrDefault(TPrimaryKey primaryKey);

@@ -31,10 +31,10 @@ namespace Dapperer
 
         public void Populate(params TEntity[] entities)
         {
-            IEnumerable<TForeignEntityPrimaryKey> keys = GetKeys(entities);
+            var keys = GetKeys(entities);
 
             IList<TForeignEntity> foreignEntities;
-            using (IDbConnection connection = _getConnection())
+            using (var connection = _getConnection())
             {
                 foreignEntities = connection.Query<TForeignEntity>(_sql, new { Keys = keys }).ToList();
             }
@@ -44,10 +44,10 @@ namespace Dapperer
 
         public async Task PopulateAsync(params TEntity[] entities)
         {
-            IEnumerable<TForeignEntityPrimaryKey> keys = GetKeys(entities);
+            var keys = GetKeys(entities);
 
             IList<TForeignEntity> foreignEntities;
-            using (IDbConnection connection = _getConnection())
+            using (var connection = _getConnection())
             {
                 foreignEntities = (await connection.QueryAsync<TForeignEntity>(_sql, new { Keys = keys }).ConfigureAwait(false)).ToList();
             }
@@ -57,9 +57,9 @@ namespace Dapperer
 
         private void PopulateEntities(IEnumerable<TEntity> entities, IList<TForeignEntity> foreignEntities)
         {
-            foreach (TEntity entity in entities)
+            foreach (var entity in entities)
             {
-                TForeignEntityPrimaryKey foreignEntityKey = _getForeignKey(entity);
+                var foreignEntityKey = _getForeignKey(entity);
                 _setter(entity, foreignEntities.FirstOrDefault(fe => Equals(foreignEntityKey, fe.GetIdentity())));
             }
         }

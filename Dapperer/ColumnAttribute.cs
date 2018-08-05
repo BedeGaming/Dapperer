@@ -5,7 +5,7 @@ namespace Dapperer
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false)]
     public class ColumnAttribute : Attribute
     {
-        public string Name { get; private set; }
+        public string Name { get; }
         public bool IsPrimary { get; set; }
         public bool AutoIncrement { get; set; }
 

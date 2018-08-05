@@ -25,16 +25,13 @@ namespace Dapperer
             _dbFactory = dbFactory;
         }
 
-        protected IDbConnection CreateConnection()
-        {
-            return _dbFactory.CreateConnection();
-        }
+        protected IDbConnection CreateConnection() => _dbFactory.CreateConnection();
 
         public virtual TEntity GetSingleOrDefault(TPrimaryKey primaryKey)
         {
-            string sql = _queryBuilder.GetByPrimaryKeyQuery<TEntity>();
+            var sql = _queryBuilder.GetByPrimaryKeyQuery<TEntity>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return connection.Query<TEntity>(sql, new { Key = primaryKey }).SingleOrDefault();
             }
@@ -42,9 +39,9 @@ namespace Dapperer
 
         public virtual IList<TEntity> GetByKeys(IEnumerable<TPrimaryKey> primaryKeys)
         {
-            string sql = _queryBuilder.GetByPrimaryKeysQuery<TEntity>();
+            var sql = _queryBuilder.GetByPrimaryKeysQuery<TEntity>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return connection.Query<TEntity>(sql, new { Keys = primaryKeys }).ToList();
             }
@@ -52,28 +49,25 @@ namespace Dapperer
 
         public virtual IList<TEntity> GetAll()
         {
-            string sql = _queryBuilder.GetAll<TEntity>();
+            var sql = _queryBuilder.GetAll<TEntity>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return connection.Query<TEntity>(sql).ToList();
             }
         }
 
-        public virtual Page<TEntity> Page(int skip, int take)
-        {
-            return Page(skip, take, null);
-        }
+        public virtual Page<TEntity> Page(int skip, int take) => Page(skip, take, null);
 
         public virtual TEntity Create(TEntity entity)
         {
-            string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
+            var sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 if (_queryBuilder.GetBaseTableInfo<TEntity>().AutoIncrement)
                 {
-                    TPrimaryKey identity = connection.Query<TPrimaryKey>(sql, entity).SingleOrDefault();
+                    var identity = connection.Query<TPrimaryKey>(sql, entity).SingleOrDefault();
                     entity.SetIdentity(identity);
                 }
                 else
@@ -87,9 +81,9 @@ namespace Dapperer
 
         public virtual int Create(IEnumerable<TEntity> entities)
         {
-            string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
+            var sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return connection.Execute(sql, entities);
             }
@@ -97,9 +91,9 @@ namespace Dapperer
 
         public virtual int Update(TEntity entity)
         {
-            string sql = _queryBuilder.UpdateQuery<TEntity>();
+            var sql = _queryBuilder.UpdateQuery<TEntity>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return connection.Execute(sql, entity);
             }
@@ -107,9 +101,9 @@ namespace Dapperer
 
         public virtual int Delete(TPrimaryKey primaryKey)
         {
-            string sql = _queryBuilder.DeleteQuery<TEntity>();
+            var sql = _queryBuilder.DeleteQuery<TEntity>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return connection.Execute(sql, new { Key = primaryKey });
             }
@@ -117,18 +111,15 @@ namespace Dapperer
 
         public virtual int Delete(string filterQuery, object filterParams = null)
         {
-            string sql = _queryBuilder.DeleteQuery<TEntity>(filterQuery);
+            var sql = _queryBuilder.DeleteQuery<TEntity>(filterQuery);
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return connection.Execute(sql, filterParams);
             }
         }
 
-        protected ITableInfoBase GetTableInfo()
-        {
-            return _queryBuilder.GetBaseTableInfo<TEntity>();
-        }
+        protected ITableInfoBase GetTableInfo() => _queryBuilder.GetBaseTableInfo<TEntity>();
 
         protected void PopulateOneToOne<TForeignEntity, TForeignEntityPrimaryKey>(Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
             Expression<Func<TEntity, TForeignEntity>> foreignEntity,
@@ -228,12 +219,12 @@ namespace Dapperer
 
         protected Page<TEntity> Page(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null)
         {
-            PagingSql pagingSql = GetPagingSql(skip, take, filterQuery, orderByQuery);
+            var pagingSql = GetPagingSql(skip, take, filterQuery, orderByQuery);
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
-                int totalItems = connection.Query<int>(pagingSql.Count, filterParams).SingleOrDefault();
-                List<TEntity> items = connection.Query<TEntity>(pagingSql.Items, filterParams).ToList();
+                var totalItems = connection.Query<int>(pagingSql.Count, filterParams).SingleOrDefault();
+                var items = connection.Query<TEntity>(pagingSql.Items, filterParams).ToList();
 
                 return PageResults(skip, take, totalItems, items);
             }
@@ -241,10 +232,10 @@ namespace Dapperer
 
         public Page<TEntity> Page(string query, string countQuery, int skip, int take, object queryParams = null, string orderByQuery = null)
         {
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
-                int totalItems = connection.Query<int>(countQuery, queryParams).SingleOrDefault();
-                List<TEntity> items =connection.Query<TEntity>(query, queryParams).ToList();
+                var totalItems = connection.Query<int>(countQuery, queryParams).SingleOrDefault();
+                var items =connection.Query<TEntity>(query, queryParams).ToList();
 
                 return PageResults(skip, take, totalItems, items);
             }
@@ -253,12 +244,12 @@ namespace Dapperer
         protected static Page<T> PageResults<T>(int skip, int take, int totalItems, List<T> items)
             where T : class 
         {
-            int totalPages = totalItems / take;
-            int currentPage = skip / take;
+            var totalPages = totalItems / take;
+            var currentPage = skip / take;
             if ((totalItems % take) != 0)
                 totalPages++;
 
-            if ((skip % take) == 0)
+            if (skip % take == 0)
                 currentPage++;
 
             return new Page<T>
@@ -274,9 +265,9 @@ namespace Dapperer
         protected PagingSql GetPagingSql(int skip, int take, string filterQuery, string orderByQuery)
         {
             if (skip < 0)
-                throw new ArgumentException("Invalid skip value", "skip");
+                throw new ArgumentException("Invalid skip value", nameof(skip));
             if (take <= 0)
-                throw new ArgumentException("Invalid take value", "take");
+                throw new ArgumentException("Invalid take value", nameof(take));
 
             return _queryBuilder.PageQuery<TEntity>(skip, take, orderByQuery, filterQuery);
         }

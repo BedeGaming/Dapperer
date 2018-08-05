@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -13,9 +12,9 @@ namespace Dapperer
     {
         public virtual async Task<TEntity> GetSingleOrDefaultAsync(TPrimaryKey primaryKey)
         {
-            string sql = _queryBuilder.GetByPrimaryKeyQuery<TEntity>();
+            var sql = _queryBuilder.GetByPrimaryKeyQuery<TEntity>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return (await connection.QueryAsync<TEntity>(sql, new { Key = primaryKey }).ConfigureAwait(false)).SingleOrDefault();
             }
@@ -23,9 +22,9 @@ namespace Dapperer
 
         public virtual async Task<IList<TEntity>> GetByKeysAsync(IEnumerable<TPrimaryKey> primaryKeys)
         {
-            string sql = _queryBuilder.GetByPrimaryKeysQuery<TEntity>();
+            var sql = _queryBuilder.GetByPrimaryKeysQuery<TEntity>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return (await connection.QueryAsync<TEntity>(sql, new { Keys = primaryKeys }).ConfigureAwait(false)).ToList();
             }
@@ -33,9 +32,9 @@ namespace Dapperer
 
         public virtual async Task<IList<TEntity>> GetAllAsync()
         {
-            string sql = _queryBuilder.GetAll<TEntity>();
+            var sql = _queryBuilder.GetAll<TEntity>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return (await connection.QueryAsync<TEntity>(sql).ConfigureAwait(false)).ToList();
             }
@@ -48,13 +47,13 @@ namespace Dapperer
 
         public virtual async Task<TEntity> CreateAsync(TEntity entity)
         {
-            string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
+            var sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 if (_queryBuilder.GetBaseTableInfo<TEntity>().AutoIncrement)
                 {
-                    TPrimaryKey identity = (await connection.QueryAsync<TPrimaryKey>(sql, entity).ConfigureAwait(false)).SingleOrDefault();
+                    var identity = (await connection.QueryAsync<TPrimaryKey>(sql, entity).ConfigureAwait(false)).SingleOrDefault();
                     entity.SetIdentity(identity);
                 }
                 else
@@ -68,9 +67,9 @@ namespace Dapperer
 
         public virtual async Task<int> CreateAsync(IEnumerable<TEntity> entities)
         {
-            string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
+            var sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return await connection.ExecuteAsync(sql, entities).ConfigureAwait(false);
             }
@@ -78,9 +77,9 @@ namespace Dapperer
 
         public virtual async Task<int> UpdateAsync(TEntity entity)
         {
-            string sql = _queryBuilder.UpdateQuery<TEntity>();
+            var sql = _queryBuilder.UpdateQuery<TEntity>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return await connection.ExecuteAsync(sql, entity).ConfigureAwait(false);
             }
@@ -88,9 +87,9 @@ namespace Dapperer
 
         public virtual async Task<int> DeleteAsync(TPrimaryKey primaryKey)
         {
-            string sql = _queryBuilder.DeleteQuery<TEntity>();
+            var sql = _queryBuilder.DeleteQuery<TEntity>();
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return await connection.ExecuteAsync(sql, new { Key = primaryKey }).ConfigureAwait(false);
             }
@@ -98,9 +97,9 @@ namespace Dapperer
 
         public virtual async Task<int> DeleteAsync(string filterQuery, object filterParams = null)
         {
-            string sql = _queryBuilder.DeleteQuery<TEntity>(filterQuery);
+            var sql = _queryBuilder.DeleteQuery<TEntity>(filterQuery);
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
                 return await connection.ExecuteAsync(sql, filterParams).ConfigureAwait(false);
             }
@@ -108,12 +107,12 @@ namespace Dapperer
 
         protected async Task<Page<TEntity>> PageAsync(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null)
         {
-            PagingSql pagingSql = GetPagingSql(skip, take, filterQuery, orderByQuery);
+            var pagingSql = GetPagingSql(skip, take, filterQuery, orderByQuery);
 
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
-                int totalItems = (await connection.QueryAsync<int>(pagingSql.Count, filterParams).ConfigureAwait(false)).SingleOrDefault();
-                List<TEntity> items = (await connection.QueryAsync<TEntity>(pagingSql.Items, filterParams).ConfigureAwait(false)).ToList();
+                var totalItems = (await connection.QueryAsync<int>(pagingSql.Count, filterParams).ConfigureAwait(false)).SingleOrDefault();
+                var items = (await connection.QueryAsync<TEntity>(pagingSql.Items, filterParams).ConfigureAwait(false)).ToList();
 
                 return PageResults(skip, take, totalItems, items);
             }
@@ -139,10 +138,10 @@ namespace Dapperer
 
         public async Task<Page<TEntity>> PageAsync(string query, string countQuery, int skip, int take, object queryParams = null, string orderByQuery = null)
         {
-            using (IDbConnection connection = CreateConnection())
+            using (var connection = CreateConnection())
             {
-                int totalItems = (await connection.QueryAsync<int>(countQuery, queryParams).ConfigureAwait(false)).SingleOrDefault();
-                List<TEntity> items = (await connection.QueryAsync<TEntity>(query, queryParams).ConfigureAwait(false)).ToList();
+                var totalItems = (await connection.QueryAsync<int>(countQuery, queryParams).ConfigureAwait(false)).SingleOrDefault();
+                var items = (await connection.QueryAsync<TEntity>(query, queryParams).ConfigureAwait(false)).ToList();
 
                 return PageResults(skip, take, totalItems, items);
             }

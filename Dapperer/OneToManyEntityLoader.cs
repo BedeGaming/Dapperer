@@ -24,9 +24,9 @@ namespace Dapperer
         {
             _getConnection = getConnection;
 
-            ITableInfoBase foreignTableInfo = queryBuilder.GetBaseTableInfo<TForeignEntity>();
-            string foreignKeyColum = GetForeignKeyColumn<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey);
-            _sql = string.Format("SELECT * FROM {0} WHERE {1} IN @ForeignKeys", foreignTableInfo.TableName, foreignKeyColum);
+            var foreignTableInfo = queryBuilder.GetBaseTableInfo<TForeignEntity>();
+            var foreignKeyColum = GetForeignKeyColumn<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey);
+            _sql = $"SELECT * FROM {foreignTableInfo.TableName} WHERE {foreignKeyColum} IN @ForeignKeys";
             
             _setter = GetSetter(foreignEntityCollection);
             _getForeignKey = foreignKey.Compile();
@@ -34,10 +34,10 @@ namespace Dapperer
 
         public void Populate(params TEntity[] entities)
         {
-            IEnumerable<TPrimaryKey> keys = GetKeys(entities);
+            var keys = GetKeys(entities);
             
             IList<TForeignEntity> foreignEntities;
-            using (IDbConnection connection = _getConnection())
+            using (var connection = _getConnection())
             {
                 foreignEntities = connection.Query<TForeignEntity>(_sql, new { ForeignKeys = keys }).ToList();
             }
@@ -47,10 +47,10 @@ namespace Dapperer
 
         public async Task PopulateAsync(params TEntity[] entities)
         {
-            IEnumerable<TPrimaryKey> keys = GetKeys(entities);
+            var keys = GetKeys(entities);
 
             IList<TForeignEntity> foreignEntities;
-            using (IDbConnection connection = _getConnection())
+            using (var connection = _getConnection())
             {
                 foreignEntities = (await connection.QueryAsync<TForeignEntity>(_sql, new { ForeignKeys = keys }).ConfigureAwait(false)).ToList();
             }
@@ -60,9 +60,9 @@ namespace Dapperer
 
         private void PopulateEntities(IEnumerable<TEntity> entities, IList<TForeignEntity> foreignEntities)
         {
-            foreach (TEntity entity in entities)
+            foreach (var entity in entities)
             {
-                TPrimaryKey key = entity.GetIdentity();
+                var key = entity.GetIdentity();
                 _setter(entity, foreignEntities.Where(se => Equals(_getForeignKey(se), key)).ToList());
             }
         }
@@ -78,8 +78,7 @@ namespace Dapperer
             var memberExpr = foreignKey.Body as MemberExpression;
             if (memberExpr == null)
             {
-                var unaryExpr = foreignKey.Body as UnaryExpression;
-                if (unaryExpr != null && unaryExpr.NodeType == ExpressionType.Convert)
+                if (foreignKey.Body is UnaryExpression unaryExpr && unaryExpr.NodeType == ExpressionType.Convert)
                     memberExpr = unaryExpr.Operand as MemberExpression;
             }
 
@@ -88,7 +87,7 @@ namespace Dapperer
                 return memberExpr.Member.Name;
             }
 
-            throw new ArgumentException("No foreign key property reference expression was found.", "foreignKey");
+            throw new ArgumentException("No foreign key property reference expression was found.", nameof(foreignKey));
         }
     }
 }

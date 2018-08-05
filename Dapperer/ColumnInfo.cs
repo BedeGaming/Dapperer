@@ -2,8 +2,8 @@
 {
     internal class ColumnInfo
     {
-        internal string ColumnName { get; private set; }
-        internal string FieldName { get; private set; }
+        internal string ColumnName { get; }
+        internal string FieldName { get; }
 
         public ColumnInfo(string columnName, string fieldName)
         {
