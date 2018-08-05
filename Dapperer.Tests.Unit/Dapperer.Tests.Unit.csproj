@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Dapperer\Dapperer.csproj" />
+    <ProjectReference Include="..\Dapperer\Dapperer.csproj" />
   </ItemGroup>
 
 </Project>
