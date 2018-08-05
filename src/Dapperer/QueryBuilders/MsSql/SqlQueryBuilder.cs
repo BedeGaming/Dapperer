@@ -72,7 +72,7 @@ namespace Dapperer.QueryBuilders.MsSql
             return pagingSql;
         }
 
-        public string InsertQuery<TEntity, TPrimaryKey>(bool multiple = false)
+        public string InsertQuery<TEntity, TPrimaryKey>()
             where TEntity : class
         {
             TableInfo tableInfo = GetTableInfo<TEntity>();
@@ -85,12 +85,7 @@ namespace Dapperer.QueryBuilders.MsSql
                 }
             }
 
-            if (multiple || !tableInfo.AutoIncrement)
-            {
-                return tableInfo.InsertSql;
-            }
-
-            return string.Format("{0}\n{1}", tableInfo.InsertSql, LastInsertedIdQuery<TPrimaryKey>());
+            return tableInfo.InsertSql;
         }
 
         public string UpdateQuery<TEntity>()
@@ -144,9 +139,9 @@ namespace Dapperer.QueryBuilders.MsSql
                 {
                     CacheTableInfo(entityType);
                 }
-            }
 
-            return _tableInfos[entityType];
+                return _tableInfos[entityType];
+            }
         }
 
         private static void CacheInsertSql(TableInfo tableInfo)
@@ -165,26 +160,12 @@ namespace Dapperer.QueryBuilders.MsSql
                 values.Add("@" + columnInfo.FieldName);
             }
 
-            string sql = string.Format(
-                "INSERT INTO {0} (\n" +
-                "\t{1}\n) VALUES (\n" +
-                "\t{2}\n);",
-                tableInfo.TableName, string.Join(",\n\t", fields), string.Join(",\n\t", values));
-            tableInfo.SetInsertSql(sql);
-        }
+            var sql =
+                $"INSERT INTO {tableInfo.TableName} ({string.Join(",", fields)}) \n" +
+                (tableInfo.AutoIncrement ? $"OUTPUT inserted.{tableInfo.Key} \n" : "") +
+                $"VALUES ({string.Join(",", values)});";
 
-        private static string LastInsertedIdQuery<TPrimaryKey>()
-        {
-            string getIdQuery;
-            if (typeof(TPrimaryKey) == typeof(int))
-            {
-                getIdQuery = "SELECT CAST(SCOPE_IDENTITY() as Int)";
-            }
-            else
-            {
-                getIdQuery = "SELECT CAST(SCOPE_IDENTITY() as BigInt)";
-            }
-            return string.Format("\n{0};", getIdQuery);
+            tableInfo.SetInsertSql(sql);
         }
 
         private static void CacheUpdateSql(TableInfo tableInfo)
