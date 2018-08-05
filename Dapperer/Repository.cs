@@ -27,7 +27,7 @@ namespace Dapperer
 
         protected IDbConnection CreateConnection() => _dbFactory.CreateConnection();
 
-        public virtual TEntity GetSingleOrDefault(TPrimaryKey primaryKey)
+        public TEntity GetSingleOrDefault(TPrimaryKey primaryKey)
         {
             var sql = _queryBuilder.GetByPrimaryKeyQuery<TEntity>();
 
@@ -37,7 +37,7 @@ namespace Dapperer
             }
         }
 
-        public virtual IList<TEntity> GetByKeys(IEnumerable<TPrimaryKey> primaryKeys)
+        public IList<TEntity> GetByKeys(IEnumerable<TPrimaryKey> primaryKeys)
         {
             var sql = _queryBuilder.GetByPrimaryKeysQuery<TEntity>();
 
@@ -47,7 +47,7 @@ namespace Dapperer
             }
         }
 
-        public virtual IList<TEntity> GetAll()
+        public IList<TEntity> GetAll()
         {
             var sql = _queryBuilder.GetAll<TEntity>();
 
@@ -57,9 +57,9 @@ namespace Dapperer
             }
         }
 
-        public virtual Page<TEntity> Page(int skip, int take) => Page(skip, take, null);
+        public Page<TEntity> Page(int skip, int take) => Page(skip, take, null);
 
-        public virtual TEntity Create(TEntity entity)
+        public TEntity Create(TEntity entity)
         {
             var sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
 
@@ -79,7 +79,7 @@ namespace Dapperer
             }
         }
 
-        public virtual int Create(IEnumerable<TEntity> entities)
+        public int Create(IEnumerable<TEntity> entities)
         {
             var sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
 
@@ -89,7 +89,7 @@ namespace Dapperer
             }
         }
 
-        public virtual int Update(TEntity entity)
+        public int Update(TEntity entity)
         {
             var sql = _queryBuilder.UpdateQuery<TEntity>();
 
@@ -99,7 +99,7 @@ namespace Dapperer
             }
         }
 
-        public virtual int Delete(TPrimaryKey primaryKey)
+        public int Delete(TPrimaryKey primaryKey)
         {
             var sql = _queryBuilder.DeleteQuery<TEntity>();
 
@@ -109,7 +109,7 @@ namespace Dapperer
             }
         }
 
-        public virtual int Delete(string filterQuery, object filterParams = null)
+        public int Delete(string filterQuery, object filterParams = null)
         {
             var sql = _queryBuilder.DeleteQuery<TEntity>(filterQuery);
 
@@ -132,15 +132,6 @@ namespace Dapperer
             PopulateOneToOne(foreignKey, foreignEntity, entities.ToArray());
         }
 
-        [ObsoleteAttribute("This method is obsolete. Call PopulateOneToOne instead.", false)]
-        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
-            Expression<Func<TEntity, TForeignEntity>> foreignEntity,
-            IEnumerable<TEntity> entities)
-            where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
-        {
-            PopulateOneToOne(foreignKey, foreignEntity, entities.ToArray());
-        }
-
         protected void PopulateOneToMany<TForeignEntity, TForeignEntityPrimaryKey>(Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
             Expression<Func<TEntity, IList<TForeignEntity>>> foreignEntityCollection,
             IEnumerable<TEntity> entities)
@@ -149,15 +140,6 @@ namespace Dapperer
             if (entities == null)
                 return;
 
-            PopulateOneToMany<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey, foreignEntityCollection, entities.ToArray());
-        }
-
-        [ObsoleteAttribute("This method is obsolete. Call PopulateOneToMany instead.", false)]
-        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
-            Expression<Func<TEntity, IList<TForeignEntity>>> foreignEntityCollection,
-            IEnumerable<TEntity> entities)
-            where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
-        {
             PopulateOneToMany<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey, foreignEntityCollection, entities.ToArray());
         }
 
@@ -179,16 +161,6 @@ namespace Dapperer
             entityLoader.Populate(entities);
         }
 
-        [ObsoleteAttribute("This method is obsolete. Call PopulateOneToOne instead.", false)]
-        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(
-            Expression<Func<TEntity, TForeignEntityPrimaryKey>> foreignKey,
-            Expression<Func<TEntity, TForeignEntity>> foreignEntity,
-            params TEntity[] entities)
-            where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
-        {
-            PopulateOneToOne(foreignKey, foreignEntity, entities);
-        }
-
         protected void PopulateOneToMany<TForeignEntity, TForeignEntityPrimaryKey>(
             Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
             Expression<Func<TEntity, IList<TForeignEntity>>> foreignEntityCollection,
@@ -205,16 +177,6 @@ namespace Dapperer
                 foreignEntityCollection);
 
             entityLoader.Populate(entities);
-        }
-
-        [ObsoleteAttribute("This method is obsolete. Call PopulateOneToMany instead.", false)]
-        protected void Populate<TForeignEntity, TForeignEntityPrimaryKey>(
-            Expression<Func<TForeignEntity, TPrimaryKey>> foreignKey,
-            Expression<Func<TEntity, IList<TForeignEntity>>> foreignEntityCollection,
-            params TEntity[] entities)
-            where TForeignEntity : class, IIdentifier<TForeignEntityPrimaryKey>, new()
-        {
-            PopulateOneToMany<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey, foreignEntityCollection, entities);
         }
 
         protected Page<TEntity> Page(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null)

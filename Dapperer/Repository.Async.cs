@@ -10,7 +10,7 @@ namespace Dapperer
     public abstract partial class Repository<TEntity, TPrimaryKey>
         where TEntity : class, IIdentifier<TPrimaryKey>, new()
     {
-        public virtual async Task<TEntity> GetSingleOrDefaultAsync(TPrimaryKey primaryKey)
+        public async Task<TEntity> GetSingleOrDefaultAsync(TPrimaryKey primaryKey)
         {
             var sql = _queryBuilder.GetByPrimaryKeyQuery<TEntity>();
 
@@ -20,7 +20,7 @@ namespace Dapperer
             }
         }
 
-        public virtual async Task<IList<TEntity>> GetByKeysAsync(IEnumerable<TPrimaryKey> primaryKeys)
+        public async Task<IList<TEntity>> GetByKeysAsync(IEnumerable<TPrimaryKey> primaryKeys)
         {
             var sql = _queryBuilder.GetByPrimaryKeysQuery<TEntity>();
 
@@ -30,7 +30,7 @@ namespace Dapperer
             }
         }
 
-        public virtual async Task<IList<TEntity>> GetAllAsync()
+        public async Task<IList<TEntity>> GetAllAsync()
         {
             var sql = _queryBuilder.GetAll<TEntity>();
 
@@ -40,12 +40,12 @@ namespace Dapperer
             }
         }
 
-        public virtual async Task<Page<TEntity>> PageAsync(int skip, int take)
+        public async Task<Page<TEntity>> PageAsync(int skip, int take)
         {
             return await PageAsync(skip, take, null).ConfigureAwait(false);
         }
 
-        public virtual async Task<TEntity> CreateAsync(TEntity entity)
+        public async Task<TEntity> CreateAsync(TEntity entity)
         {
             var sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
 
@@ -65,7 +65,7 @@ namespace Dapperer
             }
         }
 
-        public virtual async Task<int> CreateAsync(IEnumerable<TEntity> entities)
+        public async Task<int> CreateAsync(IEnumerable<TEntity> entities)
         {
             var sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
 
@@ -75,7 +75,7 @@ namespace Dapperer
             }
         }
 
-        public virtual async Task<int> UpdateAsync(TEntity entity)
+        public async Task<int> UpdateAsync(TEntity entity)
         {
             var sql = _queryBuilder.UpdateQuery<TEntity>();
 
@@ -85,7 +85,7 @@ namespace Dapperer
             }
         }
 
-        public virtual async Task<int> DeleteAsync(TPrimaryKey primaryKey)
+        public async Task<int> DeleteAsync(TPrimaryKey primaryKey)
         {
             var sql = _queryBuilder.DeleteQuery<TEntity>();
 
@@ -95,7 +95,7 @@ namespace Dapperer
             }
         }
 
-        public virtual async Task<int> DeleteAsync(string filterQuery, object filterParams = null)
+        public async Task<int> DeleteAsync(string filterQuery, object filterParams = null)
         {
             var sql = _queryBuilder.DeleteQuery<TEntity>(filterQuery);
 
