@@ -35,3 +35,6 @@ test/node_modules/*
 *.ncrunch*
 build/temp.sql
 /.vs
+/paket-files
+/.fake
+/build
