@@ -3,8 +3,6 @@
 let sd = __SOURCE_DIRECTORY__
 
 open Fake
-open System
-
 open Fake.DotNetCli
 open Fake.GitVersionHelper
 
@@ -31,8 +29,11 @@ let test project =
     let setParams (p:TestParams) =
         { p with
             Project = project
-            AdditionalArgs = [ "--logger=trx" ; "--no-build"; "--no-restore"; "--results-directory=" + testResultsDir ]
-            Configuration = "Release" 
+            AdditionalArgs = 
+                [   "--logger=trx"
+                    "--no-build"
+                    "--no-restore" 
+                    "--results-directory=" + testResultsDir ]
         }
     DotNetCli.Test setParams
 
@@ -55,7 +56,13 @@ Target "Build" (fun () ->
         { p with
             Project = "./Dapperer.sln"
             Configuration = "Release"
-            AdditionalArgs = [ "--no-incremental"; "--no-restore"; "--verbosity minimal"; "/p:Version=" + gitVersion.AssemblySemVer; "/p:DebugSymbols=True"; "/p:Optimize=True" ]
+            AdditionalArgs = 
+                [   "--no-incremental"
+                    "--no-restore"
+                    "--verbosity minimal"
+                    "/p:Version=" + gitVersion.AssemblySemVer
+                    "/p:DebugSymbols=True"
+                    "/p:Optimize=True" ]
         }
 
     DotNetCli.Build setParams
