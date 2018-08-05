@@ -1,4 +1,4 @@
-﻿namespace Dapperer.TestApiApp.Entities
+﻿namespace Dapperer.Example.Api.Entities
 {
     [Table("Addresses")]
     public class Address : IIdentifier<int>

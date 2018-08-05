@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Dapperer.TestApiApp.DatabaseAccess;
-using Dapperer.TestApiApp.Entities;
+using Dapperer.Example.Api.DatabaseAccess;
+using Dapperer.Example.Api.Entities;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Dapperer.TestApiApp.Controllers
+namespace Dapperer.Example.Api.Controllers
 {
     [Route("contacts")]
     public class ContactsController : Controller

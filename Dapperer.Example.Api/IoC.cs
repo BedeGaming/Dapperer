@@ -1,9 +1,9 @@
 ﻿using Dapperer.DbFactories;
+using Dapperer.Example.Api.DatabaseAccess;
 using Dapperer.QueryBuilders.MsSql;
-using Dapperer.TestApiApp.DatabaseAccess;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Dapperer.TestApiApp
+namespace Dapperer.Example.Api
 {
     public static class IoC
     {

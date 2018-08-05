@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Dapperer.TestApiApp.Entities
+namespace Dapperer.Example.Api.Entities
 {
     [Table("Contacts")]
     public class Contact : IIdentifier<int>

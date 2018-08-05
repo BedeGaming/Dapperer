@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace Dapperer.TestApiApp.DatabaseAccess
+namespace Dapperer.Example.Api.DatabaseAccess
 {
     public class DefaultDappererSettings : IDappererSettings
     {

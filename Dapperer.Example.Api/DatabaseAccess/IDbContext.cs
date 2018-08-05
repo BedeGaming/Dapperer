@@ -1,4 +1,4 @@
-﻿namespace Dapperer.TestApiApp.DatabaseAccess
+﻿namespace Dapperer.Example.Api.DatabaseAccess
 {
     public interface IDbContext
     {
