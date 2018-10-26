@@ -129,7 +129,7 @@ builder.RegisterType<SqlQueryBuilder>().As<IQueryBuilder>().SingleInstance();
 
 **[Table-Valued Parameters]** are strongly typed user defined type that can be used in MS SQL database queries. [IntList], [LogList], [StringList]  and [GuidList] are included part as helpers. 
 
-How to use them?
+#### How to use them?
 It's important to note that the custom types must exist in the database, check out the [TVP sql here][TVP SQL]. For example,
 
 ```SQL
@@ -154,6 +154,37 @@ public async Task<IList<User>> GetUsersAsync(IList<int> userIds)
         })).ToList();
     }
 }
+```
+
+## Custom column mapping
+
+It is **important** to note that if the if the column name in the database does not match the POCO entity class' property name then the POCO entity will not populate the right database value instead it'll be use default value of the property type.
+
+Luckily Dapper solves that issues with custom column mappings, we leverage that to support our POCO entities with `Table` and `Column` attributes.
+
+**Registering Dapperer Mapping**
+
+For example, all the database entity class are in the same assembly as `User` database entity.
+
+```C#
+[Table("User")]
+public class User : IIdentifier<int>
+{
+    [Column("UserId", IsPrimary = true, AutoIncrement = true)]
+    public int Id { get; set; }
+
+    [Column("User_Name")]
+    public string Name { get; set; }
+
+    public void SetIdentity(int identity) => Id = identity;
+
+    public int GetIdentity() => Id;
+}
+``` 
+
+**Register column mappings** - this should be done once, and can be done during the application initialization.
+```C#
+typeof(User).Assembly.UseDappererColumnMapping();
 ```
 
 ## Configurations 
