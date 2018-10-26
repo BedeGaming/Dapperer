@@ -11,7 +11,7 @@ Dapperer is an extension for [Dapper](https://github.com/StackExchange/dapper-do
 - Page-able queries
 - Cache-able query builder for the basic CURD operation queries. 
 
-# Nuget
+# Install
 https://www.nuget.org/packages/Dapperer
 
 To install Dapperer, run the following command in the Package Manager Console
@@ -19,9 +19,9 @@ To install Dapperer, run the following command in the Package Manager Console
 PM> Install-Package Dapperer
 ```
 
-# Walk-through by example - Dapperer.TestApiApp
+# Walk-through by example
 
-This is just a test application, ignore that the database entities are exposed to outside and error handling etc.
+Ref: *Dapperer.TestApiApp*, please ignore the API best practices.
 
 ## Database entities and Attributes 
 
@@ -86,12 +86,105 @@ public class ContactRepository : Repository<Contact, int>
 
 **Dapperer** conversion for repository is one concrete repository per database entity. A concrete repository (`ContactRepository` in the above case) must be extended from the base `Repository<TEntity, TPrimaryKey>` which provides all the basic *CRUD* operations, page-able queries, etc. You can enjoy everything dapper provides in the extended repository class, `GetContactByName` is an example for writing your own custom queries.
 
+### What if you don't the basic CRUD functionality?
+
+You can always use the core Dapper, using `IDbFactory`.
+
+```C#
+public class UserRepository : IUserRepository
+{
+    private readonly IDbFactory _dbFactory;
+
+    public UserRepository(IDbFactory dbFactory)
+    {
+        _dbFactory = dbFactory;
+    }
+
+    public async Task<User> GetByEmailAsync(string email)
+    {
+        var sql = "SELECT * FROM Users WHERE email = @Email";
+
+        using (var connection = _dbFactory.CreateConnection())
+        {
+            return (await connection.QueryAsync<User>(sql, new
+            {
+                Email = email
+            }).SingleOrDefault();
+        }
+    }
+}
+
+```
+ 
+
 ## Caching basic queries
 
 In this current implementation of the **Dapperer** all the basic *CRUD* queries are cached in-memory. This need a single instance of a single Query builder for the lifetime of your applications. This can be wired using dependency injection. In the test application used in this Walk-through uses Autofac, and its binding as follow.
 
 ```C#
 builder.RegisterType<SqlQueryBuilder>().As<IQueryBuilder>().SingleInstance();
+```
+
+## MS SQL Extras
+
+**[Table-Valued Parameters]** are strongly typed user defined type that can be used in MS SQL database queries. [IntList], [LogList], [StringList]  and [GuidList] are included part as helpers. 
+
+#### How to use them?
+It's important to note that the custom types must exist in the database, check out the [TVP sql here][TVP SQL]. For example,
+
+```SQL
+CREATE TYPE IntList AS TABLE (
+	Id INT NOT NULL PRIMARY KEY
+);
+```
+
+```C#
+public async Task<IList<User>> GetUsersAsync(IList<int> userIds)
+{
+    using (var connection = _dbFactory.CreateConnection())
+    {
+        const string sql = @"
+            SELECT u.* 
+            FROM @UserIds uid
+            INNER JOIN Users u ON uid.Id = u.Id";
+
+        return (await connection.QueryAsync<User>(sql, new
+        {
+            UserIds = new IntList(userIds).AsTableValuedParameter()
+        })).ToList();
+    }
+}
+```
+
+## Custom column mapping
+
+It is **important** to note that if the if the column name in the database does not match the POCO entity class' property name then the POCO entity will not populate the right database value instead it'll be use default value of the property type.
+
+Luckily Dapper solves that issues with custom column mappings, we leverage that to support our POCO entities with `Table` and `Column` attributes.
+
+**Registering Dapperer Mapping**
+
+For example, all the database entity class are in the same assembly as `User` database entity.
+
+```C#
+[Table("User")]
+public class User : IIdentifier<int>
+{
+    [Column("UserId", IsPrimary = true, AutoIncrement = true)]
+    public int Id { get; set; }
+
+    [Column("User_Name")]
+    public string Name { get; set; }
+
+    public void SetIdentity(int identity) => Id = identity;
+
+    public int GetIdentity() => Id;
+}
+``` 
+
+**Register column mappings** - this should be done once, and can be done during the application initialization.
+```C#
+typeof(User).Assembly.UseDappererColumnMapping();
 ```
 
 ## Configurations 
@@ -112,3 +205,10 @@ builder.RegisterType<SqlQueryBuilder>().As<IQueryBuilder>().SingleInstance();
 
 Please refer [CONTRIBUTING](CONTRIBUTING)
 
+
+[IntList]: ./Dapperer/QueryBuilders/MsSql/TableValueParams/IntList.cs
+[LogList]: ./Dapperer/QueryBuilders/MsSql/TableValueParams/LongList.cs
+[StringList]: ./Dapperer/QueryBuilders/MsSql/TableValueParams/StringList.cs
+[GuidList]: ./Dapperer/QueryBuilders/MsSql/TableValueParams/GuidList.cs
+[TVP SQL]: ./db/TVP.sql
+[Table-Valued Parameters]: https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/table-valued-parameters
