@@ -86,7 +86,7 @@ public class ContactRepository : Repository<Contact, int>
 
 **Dapperer** conversion for repository is one concrete repository per database entity. A concrete repository (`ContactRepository` in the above case) must be extended from the base `Repository<TEntity, TPrimaryKey>` which provides all the basic *CRUD* operations, page-able queries, etc. You can enjoy everything dapper provides in the extended repository class, `GetContactByName` is an example for writing your own custom queries.
 
-### What if you don't the basic CRUD functionality?
+### What if you don't want the basic CRUD functionality?
 
 You can always use the core Dapper, using `IDbFactory`.
 
