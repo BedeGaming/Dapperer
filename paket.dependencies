@@ -1,0 +1,4 @@
+source https://www.nuget.org/api/v2
+
+nuget FAKE 4.63.2
+nuget GitVersion.CommandLine 3.6.5
