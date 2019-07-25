@@ -9,6 +9,8 @@ namespace Dapperer
         public bool AutoIncrement { get; private set; }
 
         internal string InsertSql { get; private set; }
+        internal string IdentityInsertSql { get; private set; }
+
         internal string UpdateSql { get; private set; }
 
         internal List<ColumnInfo> ColumnInfos { get; private set; }
@@ -37,6 +39,11 @@ namespace Dapperer
         public void SetInsertSql(string insertSql)
         {
             InsertSql = insertSql;
+        }
+
+        public void SetIdentityInsertSql(string insertSql)
+        {
+            IdentityInsertSql = insertSql;
         }
 
         public void SetUpdateSql(string updateSql)

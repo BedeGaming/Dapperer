@@ -72,10 +72,15 @@ namespace Dapperer.QueryBuilders.MsSql
             return pagingSql;
         }
 
-        public string InsertQuery<TEntity, TPrimaryKey>(bool multiple = false)
+        public string InsertQuery<TEntity, TPrimaryKey>(bool multiple = false, bool identityInsert = false)
             where TEntity : class
         {
             TableInfo tableInfo = GetTableInfo<TEntity>();
+
+            if (identityInsert)
+            {
+                return IdentityInsertQuery(tableInfo);
+            }
 
             lock (tableInfo)
             {
@@ -90,7 +95,23 @@ namespace Dapperer.QueryBuilders.MsSql
                 return tableInfo.InsertSql;
             }
 
-            return string.Format("{0}\n{1}", tableInfo.InsertSql, LastInsertedIdQuery<TPrimaryKey>());
+            return $"{tableInfo.InsertSql}{Environment.NewLine}{LastInsertedIdQuery<TPrimaryKey>()}";
+        }
+
+        private static string IdentityInsertQuery(TableInfo tableInfo)
+        {
+            lock (tableInfo)
+            {
+                if (string.IsNullOrWhiteSpace(tableInfo.IdentityInsertSql))
+                {
+                    CacheIdentityInsertSql(tableInfo);
+                }
+            }
+
+            string identityInsertOn = $"SET IDENTITY_INSERT {tableInfo.TableName} ON";
+            string identityInsertOff = $"SET IDENTITY_INSERT {tableInfo.TableName} OFF";
+
+            return $"{identityInsertOn}{Environment.NewLine}{tableInfo.IdentityInsertSql}{Environment.NewLine}{identityInsertOff}";
         }
 
         public string UpdateQuery<TEntity>()
@@ -157,6 +178,20 @@ namespace Dapperer.QueryBuilders.MsSql
                 columsToInsert = tableInfo.ColumnInfos.Where(cm => cm.ColumnName != tableInfo.Key);
             }
 
+            string sql = GenerateInsertSql(tableInfo, columsToInsert);
+
+            tableInfo.SetInsertSql(sql);
+        }
+
+        private static void CacheIdentityInsertSql(TableInfo tableInfo)
+        {
+            string sql = GenerateInsertSql(tableInfo, tableInfo.ColumnInfos);
+
+            tableInfo.SetIdentityInsertSql(sql);
+        }
+
+        private static string GenerateInsertSql(TableInfo tableInfo, IEnumerable<ColumnInfo> columsToInsert)
+        {
             var fields = new List<string>();
             var values = new List<string>();
             foreach (ColumnInfo columnInfo in columsToInsert)
@@ -165,12 +200,13 @@ namespace Dapperer.QueryBuilders.MsSql
                 values.Add("@" + columnInfo.FieldName);
             }
 
-            string sql = string.Format(
-                "INSERT INTO {0} (\n" +
-                "\t{1}\n) VALUES (\n" +
-                "\t{2}\n);",
-                tableInfo.TableName, string.Join(",\n\t", fields), string.Join(",\n\t", values));
-            tableInfo.SetInsertSql(sql);
+            string fieldsJoined = string.Join($"{Environment.NewLine},", fields);
+            string valuesJoined = string.Join($"{Environment.NewLine},", values);
+
+            string sql = $"INSERT INTO {tableInfo.TableName}{Environment.NewLine}" +
+                $"({fieldsJoined}){Environment.NewLine}" +
+                $"VALUES{Environment.NewLine} ({valuesJoined});";
+            return sql;
         }
 
         private static string LastInsertedIdQuery<TPrimaryKey>()
@@ -184,7 +220,7 @@ namespace Dapperer.QueryBuilders.MsSql
             {
                 getIdQuery = "SELECT CAST(SCOPE_IDENTITY() as BigInt)";
             }
-            return string.Format("\n{0};", getIdQuery);
+            return $"{Environment.NewLine}{getIdQuery};";
         }
 
         private static void CacheUpdateSql(TableInfo tableInfo)

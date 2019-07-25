@@ -65,9 +65,9 @@ namespace Dapperer
             return Page(skip, take, null);
         }
 
-        public virtual TEntity Create(TEntity entity)
+        public virtual TEntity Create(TEntity entity, bool identityInsert = false)
         {
-            string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>();
+            string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>(identityInsert: identityInsert);
 
             using (IDbConnection connection = CreateConnection())
             {
@@ -85,9 +85,9 @@ namespace Dapperer
             }
         }
 
-        public virtual int Create(IEnumerable<TEntity> entities)
+        public virtual int Create(IEnumerable<TEntity> entities, bool identityInsert = false)
         {
-            string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>(true);
+            string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>(true, identityInsert: identityInsert);
 
             using (IDbConnection connection = CreateConnection())
             {
