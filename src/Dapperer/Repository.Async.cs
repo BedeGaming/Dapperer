@@ -52,7 +52,7 @@ namespace Dapperer
 
             using (IDbConnection connection = CreateConnection())
             {
-                if (_queryBuilder.GetBaseTableInfo<TEntity>().AutoIncrement)
+                if (_queryBuilder.GetBaseTableInfo<TEntity>().AutoIncrement && !identityInsert)
                 {
                     TPrimaryKey identity = (await connection.QueryAsync<TPrimaryKey>(sql, entity).ConfigureAwait(false)).SingleOrDefault();
                     entity.SetIdentity(identity);

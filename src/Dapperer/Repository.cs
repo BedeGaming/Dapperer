@@ -71,7 +71,7 @@ namespace Dapperer
 
             using (IDbConnection connection = CreateConnection())
             {
-                if (_queryBuilder.GetBaseTableInfo<TEntity>().AutoIncrement)
+                if (_queryBuilder.GetBaseTableInfo<TEntity>().AutoIncrement && !identityInsert)
                 {
                     TPrimaryKey identity = connection.Query<TPrimaryKey>(sql, entity).SingleOrDefault();
                     entity.SetIdentity(identity);
