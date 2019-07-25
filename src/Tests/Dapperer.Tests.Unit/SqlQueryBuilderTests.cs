@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Dapperer.QueryBuilders;
 using Dapperer.QueryBuilders.MsSql;
 using NUnit.Framework;
@@ -105,23 +106,63 @@ namespace Dapperer.Tests.Unit
         [Test]
         public void InsertQuery_EntityWithAutoIncrementingPrimaryKey_DoesnotIncludePrimaryKeyInInsert()
         {
-            const string expectedSql = "INSERT INTO TestTable ([Name]) VALUES (@Name);SELECT CAST(SCOPE_IDENTITY() as Int);";
+            string expectedSql = new StringBuilder()
+               .AppendLine("INSERT INTO TestTable")
+                       .AppendLine("([Name])")
+                       .AppendLine("VALUES")
+                       .AppendLine(" (@Name);")
+                       .AppendLine("")
+                       .Append("SELECT CAST(SCOPE_IDENTITY() as Int);")
+                   .ToString();
+
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
             string sql = queryBuilder.InsertQuery<TestEntityWithAutoIncreamentId, int>();
 
-            Assert.AreEqual(expectedSql, ReplaceNextLineAndTab(sql));
+            Assert.AreEqual(expectedSql, sql);
+        }
+
+        [Test]
+        public void InsertQuery_EntityWithAutoIncrementingPrimaryKeyAndIdentityInsert_IncludesIdentityInsert()
+        {
+            string expectedSql = new StringBuilder()
+                .AppendLine("SET IDENTITY_INSERT TestTable ON")
+                .AppendLine("INSERT INTO TestTable")
+                    .AppendLine("([Id]")
+                    .AppendLine(",[Name]")
+                    .AppendLine(",[AdditionalField1]")
+                    .AppendLine(",[AdditionalField2])")
+                    .AppendLine("VALUES")
+                    .AppendLine(" (@Id")
+                    .AppendLine(",@Name")
+                    .AppendLine(",@AdditionalField1")
+                    .AppendLine(",@AdditionalField2);")
+                .Append("SET IDENTITY_INSERT TestTable OFF")
+                .ToString();
+
+            IQueryBuilder queryBuilder = GetQueryBuilder();
+
+            string sql = queryBuilder.InsertQuery<TestEntityWithExtraFields, int>(identityInsert: true);
+
+            Assert.AreEqual(expectedSql, sql);
         }
 
         [Test]
         public void InsertQuery_EntityWithoutAutoIncrementingPrimaryKey_IncludePrimaryKeyInInsert()
         {
-            const string expectedSql = "INSERT INTO TestTable ([Id],[Name]) VALUES (@Id,@Name);";
+            string expectedSql = new StringBuilder()
+                .AppendLine("INSERT INTO TestTable")
+                    .AppendLine("([Id]")
+                    .AppendLine(",[Name])")
+                    .AppendLine("VALUES")
+                    .AppendLine(" (@Id")
+                    .Append(",@Name);")
+                .ToString();
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
             string sql = queryBuilder.InsertQuery<TestEntityWithoutAutoIncreamentId, int>();
 
-            Assert.AreEqual(expectedSql, ReplaceNextLineAndTab(sql));
+            Assert.AreEqual(expectedSql, sql);
         }
 
         [Test]
@@ -185,6 +226,14 @@ namespace Dapperer.Tests.Unit
                 return sql;
 
             return sql.Replace("\n", "").Replace("\t", "").Trim();
+        }
+
+        private string ReplaceCarriageReturn(string sql)
+        {
+            if (string.IsNullOrWhiteSpace(sql))
+                return sql;
+
+            return sql.Replace("\r", "");
         }
 
         private IQueryBuilder GetQueryBuilder()

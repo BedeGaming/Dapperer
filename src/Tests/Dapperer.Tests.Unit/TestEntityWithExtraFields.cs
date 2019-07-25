@@ -11,9 +11,11 @@ namespace Dapperer.Tests.Unit
         [Column("Name")]
         public string Name { get; set; }
 
+        [Column("AdditionalField1")]
         public decimal AdditionalField1 { get; set; }
+
+        [Column("AdditionalField2")]
         public string AdditionalField2 { get; set; }
-        public DateTime AdditionalField3 { get; set; }
 
         public void SetIdentity(int identity)
         {
