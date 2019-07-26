@@ -46,7 +46,12 @@ namespace Dapperer
             return await PageAsync(skip, take, null).ConfigureAwait(false);
         }
 
-        public virtual async Task<TEntity> CreateAsync(TEntity entity, bool identityInsert = false)
+        public virtual async Task<TEntity> CreateAsync(TEntity entity)
+        {
+            return await CreateAsync(entity, identityInsert: false);
+        }
+
+        public virtual async Task<TEntity> CreateAsync(TEntity entity, bool identityInsert)
         {
             string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>(identityInsert: identityInsert);
 
@@ -66,7 +71,12 @@ namespace Dapperer
             }
         }
 
-        public virtual async Task<int> CreateAsync(IEnumerable<TEntity> entities, bool identityInsert = false)
+        public virtual async Task<int> CreateAsync(IEnumerable<TEntity> entities)
+        {
+            return await CreateAsync(entities, identityInsert: false);
+        }
+
+        public virtual async Task<int> CreateAsync(IEnumerable<TEntity> entities, bool identityInsert)
         {
             string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>(true, identityInsert: identityInsert);
 

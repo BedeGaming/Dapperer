@@ -72,6 +72,12 @@ namespace Dapperer.QueryBuilders.MsSql
             return pagingSql;
         }
 
+        public string InsertQuery<TEntity, TPrimaryKey>(bool multiple = false)
+            where TEntity : class
+        {
+            return InsertQuery<TEntity, TPrimaryKey>(multiple: multiple, identityInsert: false);
+        }
+
         public string InsertQuery<TEntity, TPrimaryKey>(bool multiple = false, bool identityInsert = false)
             where TEntity : class
         {
