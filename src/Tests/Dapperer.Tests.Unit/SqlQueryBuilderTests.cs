@@ -98,7 +98,7 @@ namespace Dapperer.Tests.Unit
             const string expectedExceptionMessage = "Table attribute must be specified to the Entity";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.InsertQuery<TestEntityNoTableSpecified, int>());
+            var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.InsertQuery<TestEntityNoTableSpecified, int>(multiple: false));
 
             Assert.AreEqual(expectedExceptionMessage, exception.Message);
         }
@@ -117,7 +117,7 @@ namespace Dapperer.Tests.Unit
 
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            string sql = queryBuilder.InsertQuery<TestEntityWithAutoIncreamentId, int>();
+            string sql = queryBuilder.InsertQuery<TestEntityWithAutoIncreamentId, int>(multiple: false);
 
             Assert.AreEqual(expectedSql, sql);
         }
@@ -160,7 +160,7 @@ namespace Dapperer.Tests.Unit
                 .ToString();
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            string sql = queryBuilder.InsertQuery<TestEntityWithoutAutoIncreamentId, int>();
+            string sql = queryBuilder.InsertQuery<TestEntityWithoutAutoIncreamentId, int>(multiple: false);
 
             Assert.AreEqual(expectedSql, sql);
         }

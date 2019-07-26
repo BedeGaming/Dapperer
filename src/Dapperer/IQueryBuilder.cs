@@ -14,6 +14,9 @@ namespace Dapperer
         PagingSql PageQuery<TEntity>(long skip, long take, string orderByQuery = null, string filterQuery = null)
             where TEntity : class;
 
+        string InsertQuery<TEntity, TPrimaryKey>(bool multiple = false)
+             where TEntity : class;
+
         string InsertQuery<TEntity, TPrimaryKey>(bool multiple = false, bool identityInsert = false)
             where TEntity : class;
 
