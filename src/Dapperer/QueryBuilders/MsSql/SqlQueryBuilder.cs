@@ -60,12 +60,26 @@ namespace Dapperer.QueryBuilders.MsSql
             var pagingSql = new PagingSql();
             if (string.IsNullOrWhiteSpace(filterQuery))
             {
-                pagingSql.Items = string.Format("SELECT * FROM {0} {1} OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", tableInfo.TableName, orderByQuery, skip, take);
+                if(take == 0)
+                {
+                    pagingSql.Items = string.Format("SELECT * FROM {0} {1} OFFSET {2} ROWS", tableInfo.TableName, orderByQuery, skip);
+                }
+                else
+                {
+                    pagingSql.Items = string.Format("SELECT * FROM {0} {1} OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", tableInfo.TableName, orderByQuery, skip, take);
+                }
                 pagingSql.Count = string.Format("SELECT CAST(COUNT(*) AS Int) AS total FROM {0}", tableInfo.TableName);
             }
             else
             {
-                pagingSql.Items = string.Format("SELECT DISTINCT {0}.* FROM {0} {1} {2} OFFSET {3} ROWS FETCH NEXT {4} ROWS ONLY", tableInfo.TableName, filterQuery, orderByQuery, skip, take);
+                if (take == 0)
+                {
+                    pagingSql.Items = string.Format("SELECT DISTINCT {0}.* FROM {0} {1} {2} OFFSET {3} ROWS", tableInfo.TableName, filterQuery, orderByQuery, skip, take);
+                }
+                else
+                {
+                    pagingSql.Items = string.Format("SELECT DISTINCT {0}.* FROM {0} {1} {2} OFFSET {3} ROWS FETCH NEXT {4} ROWS ONLY", tableInfo.TableName, filterQuery, orderByQuery, skip, take);
+                }
                 pagingSql.Count = string.Format("SELECT CAST(COUNT(DISTINCT {0}.{1}) AS Int) AS total FROM {0} {2}", tableInfo.TableName, tableInfo.Key, filterQuery);
             }
 

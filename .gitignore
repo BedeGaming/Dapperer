@@ -34,3 +34,10 @@ src/packages/*
 test/node_modules/*
 *.ncrunch*
 build/temp.sql
+/src/.vs/Dapperer/v16/TestStore/0/testlog.manifest
+/src/.vs/Dapperer/v16/TestStore/0/000-0000.testlog
+/src/.vs/Dapperer/v16/TestStore/0
+/src/.vs/Dapperer/v16/Server/sqlite3/storage.ide-wal
+/src/.vs/Dapperer/v16/Server/sqlite3/storage.ide-shm
+/src/.vs/Dapperer/v16/Server/sqlite3/storage.ide
+/src/.vs/Dapperer/v16/Server/sqlite3/db.lock

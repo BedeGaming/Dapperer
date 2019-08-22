@@ -93,6 +93,32 @@ namespace Dapperer.Tests.Unit
         }
 
         [Test]
+        public void PageQuery_TakeIsZero_QueryForAllItemsIsReturned()
+        {
+            const string expectedItemsSql = "SELECT DISTINCT TestTable.* FROM TestTable WHERE BY Name like 'J%' ORDER BY Id OFFSET 2 ROWS";
+            const string expectedCountSql = "SELECT CAST(COUNT(DISTINCT TestTable.Id) AS Int) AS total FROM TestTable WHERE BY Name like 'J%'";
+            IQueryBuilder queryBuilder = GetQueryBuilder();
+
+            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 0, filterQuery: "WHERE BY Name like 'J%'");
+
+            Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
+            Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
+        }
+
+        [Test]
+        public void PageQuery_TakeIsZeroWithFilter_QueryForAllItemsIsReturned()
+        {
+            const string expectedItemsSql = "SELECT * FROM TestTable ORDER BY Id OFFSET 2 ROWS";
+            const string expectedCountSql = "SELECT CAST(COUNT(*) AS Int) AS total FROM TestTable";
+            IQueryBuilder queryBuilder = GetQueryBuilder();
+
+            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 0);
+
+            Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
+            Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
+        }
+
+        [Test]
         public void InsertQuery_EntityWithoutTableSpecified_ThrowException()
         {
             const string expectedExceptionMessage = "Table attribute must be specified to the Entity";

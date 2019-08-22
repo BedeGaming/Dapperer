@@ -65,6 +65,11 @@ namespace Dapperer
             return Page(skip, take, null);
         }
 
+        public virtual Page<TEntity> Page(int skip, int? take)
+        {
+            return Page(skip, take ?? 10);
+        }
+
         public virtual TEntity Create(TEntity entity)
         {
             return Create(entity, identityInsert: false);
@@ -260,21 +265,26 @@ namespace Dapperer
             }
         }
 
+        public Page<TEntity> Page(string query, string countQuery, int skip, int? take, object queryParams = null, string orderByQuery = null)
+        {
+            return Page(query, countQuery, skip, take ?? 10, queryParams, orderByQuery);
+        }
+
         protected static Page<T> PageResults<T>(int skip, int take, int totalItems, List<T> items)
             where T : class 
         {
-            int totalPages = totalItems / take;
-            int currentPage = skip / take;
-            if ((totalItems % take) != 0)
+            int totalPages = take == 0 ? 1 : totalItems / take;
+            int currentPage = take == 0 ? 1 : skip / take;
+            if (take != 0 && (totalItems % take) != 0)
                 totalPages++;
 
-            if ((skip % take) == 0)
+            if (take != 0 && (skip % take) == 0)
                 currentPage++;
 
             return new Page<T>
             {
                 CurrentPage = currentPage,
-                ItemsPerPage = take,
+                ItemsPerPage = take == 0 ? totalItems : take,
                 TotalPages = totalPages,
                 TotalItems = totalItems,
                 Items = items
@@ -285,7 +295,7 @@ namespace Dapperer
         {
             if (skip < 0)
                 throw new ArgumentException("Invalid skip value", "skip");
-            if (take <= 0)
+            if (take < 0)
                 throw new ArgumentException("Invalid take value", "take");
 
             return _queryBuilder.PageQuery<TEntity>(skip, take, orderByQuery, filterQuery);

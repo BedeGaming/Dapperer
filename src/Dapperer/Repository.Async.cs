@@ -46,6 +46,12 @@ namespace Dapperer
             return await PageAsync(skip, take, null).ConfigureAwait(false);
         }
 
+
+        public virtual async Task<Page<TEntity>> PageAsync(int skip, int? take)
+        {
+            return await PageAsync(skip, take ?? 10).ConfigureAwait(false);
+        }
+
         public virtual async Task<TEntity> CreateAsync(TEntity entity)
         {
             return await CreateAsync(entity, identityInsert: false);
@@ -156,6 +162,11 @@ namespace Dapperer
 
                 return PageResults(skip, take, totalItems, items);
             }
+        }
+
+        public async Task<Page<TEntity>> PageAsync(string query, string countQuery, int skip, int? take, object queryParams = null, string orderByQuery = null)
+        {
+            return await PageAsync(query, countQuery, skip, take ?? 10, queryParams, orderByQuery);
         }
 
         protected async Task PopulateOneToManyAsync<TForeignEntity, TForeignEntityPrimaryKey>(
