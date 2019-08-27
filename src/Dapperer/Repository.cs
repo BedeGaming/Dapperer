@@ -65,11 +65,6 @@ namespace Dapperer
             return Page(skip, take, null);
         }
 
-        public virtual Page<TEntity> Page(int skip, int? take)
-        {
-            return Page(skip, take ?? 10);
-        }
-
         public virtual TEntity Create(TEntity entity)
         {
             return Create(entity, identityInsert: false);
@@ -263,11 +258,6 @@ namespace Dapperer
 
                 return PageResults(skip, take, totalItems, items);
             }
-        }
-
-        public Page<TEntity> Page(string query, string countQuery, int skip, int? take, object queryParams = null, string orderByQuery = null)
-        {
-            return Page(query, countQuery, skip, take ?? 10, queryParams, orderByQuery);
         }
 
         protected static Page<T> PageResults<T>(int skip, int take, int totalItems, List<T> items)
