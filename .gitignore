@@ -34,3 +34,4 @@ src/packages/*
 test/node_modules/*
 *.ncrunch*
 build/temp.sql
+/src/.vs/*
