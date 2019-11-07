@@ -15,6 +15,7 @@ namespace Dapperer
         int Create(IEnumerable<TEntity> entities);
         int Create(IEnumerable<TEntity> entities, bool identityInsert);
         int Update(TEntity entity);
+        int Update(IEnumerable<TEntity> entities);
         int Delete(TPrimaryKey primaryKey);
         int Delete(string filterQuery, object filterParams = null);
         Page<TEntity> Page(string query, string countQuery, int skip, int take, object queryParams = null, string orderByQuery = null);
@@ -27,6 +28,7 @@ namespace Dapperer
         Task<int> CreateAsync(IEnumerable<TEntity> entities);
         Task<int> CreateAsync(IEnumerable<TEntity> entities, bool identityInsert);
         Task<int> UpdateAsync(TEntity entity);
+        Task<int> UpdateAsync(IEnumerable<TEntity> entities);
         Task<int> DeleteAsync(TPrimaryKey primaryKey);
         Task<int> DeleteAsync(string filterQuery, object filterParams = null);
         Task<Page<TEntity>> PageAsync(string query, string countQuery, int skip, int take, object queryParams = null, string orderByQuery = null);
