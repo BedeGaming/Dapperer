@@ -115,6 +115,16 @@ namespace Dapperer
             }
         }
 
+        public virtual int Update(IEnumerable<TEntity> entities)
+        {
+            string sql = _queryBuilder.UpdateQuery<TEntity>();
+
+            using (IDbConnection connection = CreateConnection())
+            {
+                return connection.Execute(sql, entities);
+            }
+        }
+
         public virtual int Delete(TPrimaryKey primaryKey)
         {
             string sql = _queryBuilder.DeleteQuery<TEntity>();

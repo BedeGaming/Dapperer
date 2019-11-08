@@ -96,6 +96,16 @@ namespace Dapperer
             }
         }
 
+        public virtual async Task<int> UpdateAsync(IEnumerable<TEntity> entities)
+        {
+            string sql = _queryBuilder.UpdateQuery<TEntity>();
+
+            using (IDbConnection connection = CreateConnection())
+            {
+                return await connection.ExecuteAsync(sql, entities).ConfigureAwait(false);
+            }
+        }
+
         public virtual async Task<int> DeleteAsync(TPrimaryKey primaryKey)
         {
             string sql = _queryBuilder.DeleteQuery<TEntity>();
