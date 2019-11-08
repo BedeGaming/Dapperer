@@ -10,10 +10,16 @@
     <tags>Dapper</tags>
     <projectUrl>https://github.com/BedeGaming/Dapperer</projectUrl>
     <dependencies>
-      <dependency id="Dapper" version="1.39" />
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="Dapper" version="1.39" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Dapper" version="2.0.30" exclude="Build,Analyzers" />
+      </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="src\Dapperer\bin\Release\Dapperer.dll" target="lib\net45" />
+    <file src="src\Dapperer\bin\Release\net45\Dapperer.dll" target="lib\net45"/>
+    <file src="src\Dapperer\bin\Release\netstandard2.0\Dapperer.dll" target="lib\netstandard2.0"/>
   </files>
 </package>
