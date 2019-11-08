@@ -3,18 +3,18 @@
   <metadata>
     <id>Dapperer</id>
     <version>0.0.0.0</version>
-    <authors>Joseph Jeganathan</authors>
-    <owners>Joseph Jeganathan</owners>
+    <authors>Bede Gaming Ltd</authors>
+    <owners>Bede Gaming Ltd</owners>
     <description>Dapperer an extension for Dapper</description>
     <language>en-GB</language>
     <tags>Dapper</tags>
     <projectUrl>https://github.com/BedeGaming/Dapperer</projectUrl>
     <dependencies>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="Dapper" version="1.39" exclude="Build,Analyzers" />
+        <dependency id="Dapper" version="1.39" />
       </group>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="Dapper" version="2.0.30" exclude="Build,Analyzers" />
+        <dependency id="Dapper" version="2.0.30" />
       </group>
     </dependencies>
   </metadata>
