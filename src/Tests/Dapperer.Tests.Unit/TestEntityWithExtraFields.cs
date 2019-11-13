@@ -1,9 +1,10 @@
 ﻿using System;
+using Dapperer;
 
 namespace Dapperer.Tests.Unit
 {
     [Table("TestTable")]
-    public class TestEntityWithExtraFields
+    public class TestEntityWithExtraFields : IIdentifier<int>
     {
         [Column("Id", IsPrimary = true, AutoIncrement = true)]
         public int Id { get; set; }
@@ -16,6 +17,11 @@ namespace Dapperer.Tests.Unit
 
         [Column("AdditionalField2")]
         public string AdditionalField2 { get; set; }
+
+        public int GetIdentity()
+        {
+            return Id;
+        }
 
         public void SetIdentity(int identity)
         {

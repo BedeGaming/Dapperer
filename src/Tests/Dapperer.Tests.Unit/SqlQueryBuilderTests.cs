@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
-using Dapperer.QueryBuilders;
 using Dapperer.QueryBuilders.MsSql;
 using NUnit.Framework;
 

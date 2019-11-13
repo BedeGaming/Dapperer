@@ -97,12 +97,26 @@ namespace Dapperer
 
         public virtual int Create(IEnumerable<TEntity> entities, bool identityInsert)
         {
-            string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>(true, identityInsert: identityInsert);
+            var tableInfo = (TableInfo)GetTableInfo();
+
+            string[] columsToInsert = GetInsertColumns(tableInfo, identityInsert);
+
+            int result = 0;
+            var batches = SplitIntoBatches(entities, CalculateMaxBatchCountBasedOnColumnsCount(columsToInsert.Count()));
 
             using (IDbConnection connection = CreateConnection())
             {
-                return connection.Execute(sql, entities);
+                foreach (var batch in batches)
+                {
+                    string sql = _queryBuilder.InsertQueryBatch(batch, tableInfo.TableName, columsToInsert);
+
+                    var parameters = ConvertEntitiesToParameters(batch.ToArray(), columsToInsert);
+
+                    result += connection.Execute(sql, parameters);
+                }
             }
+
+            return result;
         }
 
         public virtual int Update(TEntity entity)

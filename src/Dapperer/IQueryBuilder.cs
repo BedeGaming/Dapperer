@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Dapperer
 {
     public interface IQueryBuilder
@@ -19,6 +21,9 @@ namespace Dapperer
 
         string InsertQuery<TEntity, TPrimaryKey>(bool multiple = false, bool identityInsert = false)
             where TEntity : class;
+
+        string InsertQueryBatch<TEntity>(IEnumerable<TEntity> entities, string tableName, string[] columnNames, bool identityInsert = false)
+             where TEntity : class;
 
         string UpdateQuery<TEntity>()
             where TEntity : class;
