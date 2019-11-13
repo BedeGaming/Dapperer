@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 
@@ -78,12 +80,27 @@ namespace Dapperer
 
         public virtual async Task<int> CreateAsync(IEnumerable<TEntity> entities, bool identityInsert)
         {
-            string sql = _queryBuilder.InsertQuery<TEntity, TPrimaryKey>(true, identityInsert: identityInsert);
+            var tableInfo = (TableInfo)GetTableInfo();
+
+            string[] columsToInsert = GetInsertColumns(tableInfo, identityInsert);
+
+            int result = 0;
+            var batches = SplitIntoBatches(entities, CalculateMaxBatchCountBasedOnColumnsCount(columsToInsert.Count()));
 
             using (IDbConnection connection = CreateConnection())
             {
-                return await connection.ExecuteAsync(sql, entities).ConfigureAwait(false);
+                foreach (var batch in batches)
+                {
+                    string sql = _queryBuilder.InsertQueryBatch(batch, tableInfo.TableName, columsToInsert, identityInsert);
+
+                    var parameters = ConvertEntitiesToParameters(batch.ToArray(), columsToInsert);
+
+                    result += await connection.ExecuteAsync(sql, parameters)
+                        .ConfigureAwait(false);
+                }
             }
+
+            return result;
         }
 
         public virtual async Task<int> UpdateAsync(TEntity entity)
@@ -220,6 +237,71 @@ namespace Dapperer
                 foreignEntityCollection);
 
             await entityLoader.PopulateAsync(entities).ConfigureAwait(false);
+        }
+
+        private List<IEnumerable<T>> SplitIntoBatches<T>(IEnumerable<T> items, int batchSize)
+        {
+            int currentSkip = 0;
+
+            IEnumerable<T> currentPagedItems = items.Skip(currentSkip).Take(batchSize);
+
+            List<IEnumerable<T>> result = new List<IEnumerable<T>>();
+            while (currentPagedItems.Count() > 0)
+            {
+                result.Add(currentPagedItems);
+
+                currentSkip += batchSize;
+                currentPagedItems = items.Skip(currentSkip).Take(batchSize);
+            }
+
+            return result;
+        }
+
+        private Dictionary<string, object> ConvertEntitiesToParameters(TEntity[] batch, string[] columsToInsert)
+        {
+            var result = new Dictionary<string, object>();
+
+            for (int i = 0; i < batch.Length; i++)
+            {
+                var currentItem = batch[i];
+
+                foreach (var columnName in columsToInsert)
+                {
+                    string key = $"{columnName}{i}";
+                    var property = typeof(TEntity).GetProperty(columnName);
+
+                    result[key] = property.GetValue(currentItem);
+                }
+            }
+
+            return result;
+        }
+
+        private int CalculateMaxBatchCountBasedOnColumnsCount(int columnsCount)
+        {
+            const int maxSqlParameters = 2100;
+            const int maxInsertRows = 1000;
+
+            // Max sql parameters are 2100 for a single query
+            // we substract 30 for extra query parmaters
+            var count = (maxSqlParameters - 30) / columnsCount;
+
+            return count <= maxInsertRows ? count : maxInsertRows;
+        }
+
+        private string[] GetInsertColumns(TableInfo tableInfo, bool identityInsert)
+        {
+            string[] columsToInsert = tableInfo.ColumnInfos
+                .Select(x => x.ColumnName)
+                .ToArray();
+
+            if (!identityInsert && tableInfo.AutoIncrement)
+            {
+                columsToInsert = columsToInsert.Where(cm => cm != tableInfo.Key)
+                    .ToArray();
+            }
+
+            return columsToInsert;
         }
     }
 }

@@ -11,6 +11,7 @@
     <projectUrl>https://github.com/BedeGaming/Dapperer</projectUrl>
     <dependencies>
       <group targetFramework=".NETFramework4.5">
+        <dependency id="System.Data.SqlClient" version="4.7.0" />
         <dependency id="Dapper" version="1.39" />
       </group>
       <group targetFramework=".NETStandard2.0">

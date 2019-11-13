@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace Dapperer.QueryBuilders.MsSql
 {
@@ -116,6 +117,26 @@ namespace Dapperer.QueryBuilders.MsSql
             }
 
             return $"{tableInfo.InsertSql}{Environment.NewLine}{LastInsertedIdQuery<TPrimaryKey>()}";
+        }
+
+        public string InsertQueryBatch<TEntity>(
+            IEnumerable<TEntity> entities,
+            string tableName,
+            string[] columnNames,
+            bool identityInsert = false)
+             where TEntity : class
+        {
+            var sql = ToSqlInsertStatement(entities, tableName, columnNames);
+
+            if (identityInsert)
+            {
+                string identityInsertOn = $"SET IDENTITY_INSERT {tableName} ON";
+                string identityInsertOff = $"SET IDENTITY_INSERT {tableName} OFF";
+
+                return $"{identityInsertOn}{Environment.NewLine}{sql}{Environment.NewLine}{identityInsertOff}";
+            }
+
+            return sql;
         }
 
         private static string IdentityInsertQuery(TableInfo tableInfo)
@@ -292,6 +313,32 @@ namespace Dapperer.QueryBuilders.MsSql
             }
 
             _tableInfos.Add(entityType, tableInfo);
+        }
+
+        private string ToSqlInsertStatement<TEntity>(IEnumerable<TEntity> data, string tableName, string[] columnNames)
+            where TEntity : class
+        {
+            return ConvertToSqlInsertStatement(data, tableName, columnNames);
+        }
+
+        private string ConvertToSqlInsertStatement<T>(IEnumerable<T> data, string tableName, IEnumerable<string> columns)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            string columnsJoined = string.Join($",", columns);
+
+            sb.Append($"INSERT INTO {tableName} ({columnsJoined}) VALUES ");
+
+            sb.Append(Environment.NewLine);
+            for (int i = 0; i < data.Count(); i++)
+            {
+                string parameters = string.Join($",", columns.Select(x => $"@{x}{i}"));
+                sb.Append($"({parameters}),");
+            }
+            sb.Remove(sb.Length - 1, 1);
+            sb.Append(Environment.NewLine);
+
+            return sb.ToString();
         }
     }
 }
