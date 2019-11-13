@@ -325,7 +325,7 @@ namespace Dapperer.QueryBuilders.MsSql
         {
             StringBuilder sb = new StringBuilder();
 
-            string columnsJoined = string.Join($",", columns);
+            string columnsJoined = string.Join($",", columns.Select(x => $"[{x}]"));
 
             sb.Append($"INSERT INTO {tableName} ({columnsJoined}) VALUES ");
 
