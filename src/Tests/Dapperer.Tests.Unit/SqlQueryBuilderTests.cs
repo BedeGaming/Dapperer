@@ -91,6 +91,22 @@ namespace Dapperer.Tests.Unit
             Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
             Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
         }
+        
+        [Test]
+        public void PageQuery_FilterBySpecified_And_AdditionalTableColumn_PassedQueryIsUsed()
+        {
+            const string expectedItemsSql = "SELECT DISTINCT Table, TableTest, TestTable.* FROM TestTable WHERE BY Name like 'J%' ORDER BY Id OFFSET 2 ROWS FETCH NEXT 5 ROWS ONLY";
+            const string expectedCountSql = "SELECT CAST(COUNT(DISTINCT TestTable.Id) AS Int) AS total FROM TestTable WHERE BY Name like 'J%'";
+            IQueryBuilder queryBuilder = GetQueryBuilder();
+
+            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 
+                                                                                         5, 
+                                                                                         filterQuery: "WHERE BY Name like 'J%'", 
+                                                                                         additionalTableColumns:new List<string> {"Table","TableTest" });
+
+            Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
+            Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
+        }
 
         [Test]
         public void PageQuery_TakeIsZero_QueryForAllItemsIsReturned()
