@@ -18,7 +18,7 @@ namespace Dapperer
         int Update(IEnumerable<TEntity> entities);
         int Delete(TPrimaryKey primaryKey);
         int Delete(string filterQuery, object filterParams = null);
-        Page<TEntity> Page(string query, string countQuery, int skip, int take, object queryParams = null, string orderByQuery = null);
+        Page<TEntity> Page(string query, string countQuery, int skip, int take, object queryParams = null);
         Task<TEntity> GetSingleOrDefaultAsync(TPrimaryKey primaryKey);
         Task<IList<TEntity>> GetByKeysAsync(IEnumerable<TPrimaryKey> primaryKeys);
         Task<IList<TEntity>> GetAllAsync();
@@ -31,6 +31,6 @@ namespace Dapperer
         Task<int> UpdateAsync(IEnumerable<TEntity> entities);
         Task<int> DeleteAsync(TPrimaryKey primaryKey);
         Task<int> DeleteAsync(string filterQuery, object filterParams = null);
-        Task<Page<TEntity>> PageAsync(string query, string countQuery, int skip, int take, object queryParams = null, string orderByQuery = null);
+        Task<Page<TEntity>> PageAsync(string query, string countQuery, int skip, int take, object queryParams = null);
     }
 }

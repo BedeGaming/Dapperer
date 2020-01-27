@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
-using Dapper;
 
 namespace Dapperer
 {
@@ -143,9 +141,9 @@ namespace Dapperer
             }
         }
 
-        protected async Task<Page<TEntity>> PageAsync(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null)
+        protected async Task<Page<TEntity>> PageAsync(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null, ICollection<string> additionalTableColumns = null)
         {
-            PagingSql pagingSql = GetPagingSql(skip, take, filterQuery, orderByQuery);
+            PagingSql pagingSql = GetPagingSql(skip, take, filterQuery, orderByQuery, additionalTableColumns);
 
             using (IDbConnection connection = CreateConnection())
             {
@@ -174,7 +172,7 @@ namespace Dapperer
             await entityLoader.PopulateAsync(entities.ToArray()).ConfigureAwait(false);
         }
 
-        public async Task<Page<TEntity>> PageAsync(string query, string countQuery, int skip, int take, object queryParams = null, string orderByQuery = null)
+        public async Task<Page<TEntity>> PageAsync(string query, string countQuery, int skip, int take, object queryParams = null)
         {
             using (IDbConnection connection = CreateConnection())
             {

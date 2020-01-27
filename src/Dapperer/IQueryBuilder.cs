@@ -13,7 +13,7 @@ namespace Dapperer
         string GetAll<TEntity>()
             where TEntity : class;
 
-        PagingSql PageQuery<TEntity>(long skip, long take, string orderByQuery = null, string filterQuery = null)
+        PagingSql PageQuery<TEntity>(long skip, long take, string orderByQuery = null, string filterQuery = null, ICollection<string> additionalTableColumns = null)
             where TEntity : class;
 
         string InsertQuery<TEntity, TPrimaryKey>(bool multiple = false)
