@@ -10,11 +10,11 @@
     <tags>Dapper</tags>
     <projectUrl>https://github.com/BedeGaming/Dapperer</projectUrl>
     <dependencies>
-      <group targetFramework=".NETFramework4.5">
+      <group targetFramework="net45">
         <dependency id="System.Data.SqlClient" version="4.7.0" />
         <dependency id="Dapper" version="1.39" />
       </group>
-      <group targetFramework=".NETStandard2.0">
+      <group targetFramework="netstandard2.0">
         <dependency id="Dapper" version="2.0.30" />
         <dependency id="System.Data.SqlClient" version="4.7.0" />
         <dependency id="System.Configuration.ConfigurationManager" version="4.6.0" />
