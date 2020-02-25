@@ -85,6 +85,13 @@ namespace Dapperer
 
             if (memberExpr != null && memberExpr.Member.MemberType == MemberTypes.Property)
             {
+                var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
+
+                if (columnAttribute != null)
+                {
+                    return columnAttribute.Name;
+                }
+
                 return memberExpr.Member.Name;
             }
 
