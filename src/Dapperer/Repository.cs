@@ -292,7 +292,7 @@ namespace Dapperer
             if (take != 0 && (totalItems % take) != 0)
                 totalPages++;
 
-            if (take != 0 && (skip % take) == 0)
+            if (take != 0 && (skip % take == 0 || currentPage == 0))
                 currentPage++;
 
             return new Page<T>
