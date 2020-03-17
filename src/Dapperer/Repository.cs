@@ -307,9 +307,9 @@ namespace Dapperer
             if (take != 0)
             {
                 bool hasNoRemainderForAdditionalPage = skip % take == 0;
-                int currentPage = skip / take == 0 ? 1 : skip / take;
+                int currentPage = skip / take;
 
-                if (hasNoRemainderForAdditionalPage)
+                if (hasNoRemainderForAdditionalPage || currentPage == 0)
                 {
                     currentPage++;
                 }
