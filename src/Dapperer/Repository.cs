@@ -13,7 +13,7 @@ namespace Dapperer
     /// </summary>
     /// <typeparam name="TEntity">Entity type</typeparam>
     /// <typeparam name="TPrimaryKey">Primary key type either</typeparam>
-    public abstract partial class Repository<TEntity, TPrimaryKey> : IRepository<TEntity, TPrimaryKey> 
+    public abstract partial class Repository<TEntity, TPrimaryKey> : IRepository<TEntity, TPrimaryKey>
         where TEntity : class, IIdentifier<TPrimaryKey>, new()
     {
         private readonly IQueryBuilder _queryBuilder;
@@ -242,9 +242,9 @@ namespace Dapperer
                 return;
 
             var entityLoader = new OneToManyEntityLoader<TEntity, TPrimaryKey, TForeignEntity, TForeignEntityPrimaryKey>(
-                CreateConnection, 
-                _queryBuilder, 
-                foreignKey, 
+                CreateConnection,
+                _queryBuilder,
+                foreignKey,
                 foreignEntityCollection);
 
             entityLoader.Populate(entities);
@@ -278,27 +278,59 @@ namespace Dapperer
             using (IDbConnection connection = CreateConnection())
             {
                 int totalItems = connection.Query<int>(countQuery, queryParams).SingleOrDefault();
-                List<TEntity> items =connection.Query<TEntity>(query, queryParams).ToList();
+                List<TEntity> items = connection.Query<TEntity>(query, queryParams).ToList();
 
                 return PageResults(skip, take, totalItems, items);
             }
         }
 
+        private static int GetTotalPages(int take, int totalItems)
+        {
+            if (take != 0)
+            {
+                bool hasRemainderForAdditionalPage = totalItems % take != 0;
+                int totalPages = totalItems / take;
+
+                if (hasRemainderForAdditionalPage)
+                {
+                    totalPages++;
+                }
+
+                return totalPages;
+            }
+
+            return 1;
+        }
+
+        private static int GetCurrentPage(int skip, int take)
+        {
+            if (take != 0)
+            {
+                bool hasNoRemainderForAdditionalPage = skip % take == 0;
+                int currentPage = skip / take == 0 ? 1 : skip / take;
+
+                if (hasNoRemainderForAdditionalPage)
+                {
+                    currentPage++;
+                }
+
+                return currentPage;
+            }
+
+            return 1;
+        }
+
         protected static Page<T> PageResults<T>(int skip, int take, int totalItems, List<T> items)
             where T : class 
         {
-            int totalPages = take == 0 ? 1 : totalItems / take;
-            int currentPage = take == 0 ? 1 : skip / take;
-            if (take != 0 && (totalItems % take) != 0)
-                totalPages++;
-
-            if (take != 0 && (skip % take == 0 || currentPage == 0))
-                currentPage++;
+            int totalPages = GetTotalPages(take, totalItems);
+            int currentPage = GetCurrentPage(skip, take);
+            int itemsPerPage = take == 0 ? totalItems : take;
 
             return new Page<T>
             {
                 CurrentPage = currentPage,
-                ItemsPerPage = take == 0 ? totalItems : take,
+                ItemsPerPage = itemsPerPage,
                 TotalPages = totalPages,
                 TotalItems = totalItems,
                 Items = items
