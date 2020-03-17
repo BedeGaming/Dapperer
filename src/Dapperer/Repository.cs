@@ -302,7 +302,7 @@ namespace Dapperer
             return 1;
         }
 
-        private static int GetCurrentPage(int skip, int take)
+        private int GetCurrentPage(int skip, int take)
         {
             if (take != 0)
             {
@@ -320,7 +320,7 @@ namespace Dapperer
             return 1;
         }
 
-        protected static Page<T> PageResults<T>(int skip, int take, int totalItems, List<T> items)
+        protected Page<T> PageResults<T>(int skip, int take, int totalItems, List<T> items)
             where T : class 
         {
             int totalPages = GetTotalPages(take, totalItems);
