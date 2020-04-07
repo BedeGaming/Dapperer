@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Net;
-using System.Web.Http;
-using Dapperer.TestApiApp.DatabaseAccess;
-using Dapperer.TestApiApp.Entities;
+using Dapperer.TestApp.AspNetCore.DatabaseAccess;
+using Dapperer.TestApp.AspNetCore.Entities;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Dapperer.TestApiApp.Controllers
+namespace Dapperer.TestApp.AspNetCore.Controllers
 {
-    [RoutePrefix("contacts")]
-    public class ContactsController : ApiController
+    [Route("api/contracts")]
+    public class ContactsController : ControllerBase
     {
         private readonly IDbContext _dbContext;
 
@@ -16,14 +16,14 @@ namespace Dapperer.TestApiApp.Controllers
             _dbContext = dbContext;
         }
 
-        [Route("")]
+        [HttpGet("")]
         public IEnumerable<Contact> GetAllContacts()
         {
             return _dbContext.ContactRepo.GetAll();
         }
 
-        [Route("{contactId:int}", Name = "Contact")]
-        public IHttpActionResult GetContactById(int contactId)
+        [HttpGet("{contactId:int}", Name = "Contact")]
+        public IActionResult GetContactById(int contactId)
         {
             Contact contact = _dbContext.ContactRepo.GetSingleOrDefault(contactId);
 
@@ -35,16 +35,16 @@ namespace Dapperer.TestApiApp.Controllers
             return Ok(contact);
         }
 
-        [Route("")]
-        public IHttpActionResult CreateContact(Contact contact)
+        [HttpPost("")]
+        public IActionResult CreateContact(Contact contact)
         {
             Contact createdContact = _dbContext.ContactRepo.Create(contact);
 
             return CreatedAtRoute("Contact", new { contactId = createdContact.Id }, createdContact);
         }
 
-        [Route("{contactId:int}")]
-        public IHttpActionResult Update(int contactId, Contact contact)
+        [HttpPut("{contactId:int}")]
+        public IActionResult Update(int contactId, Contact contact)
         {
             Contact contactFromDb = _dbContext.ContactRepo.GetSingleOrDefault(contactId);
 
@@ -57,30 +57,30 @@ namespace Dapperer.TestApiApp.Controllers
             return Ok();
         }
 
-        [Route("{contactId:int}/addresses")]
+        [HttpGet("{contactId:int}/addresses")]
         public IEnumerable<Address> GetAllAddresses()
         {
             return _dbContext.AddressRepo.GetAll();
         }
 
-        [Route("{contactId:int}/addresses/{addressId:int}", Name = "Address")]
-        public IHttpActionResult GetAddressById(int contactId, int addressId)
+        [HttpGet("{contactId:int}/addresses/{addressId:int}", Name = "Address")]
+        public IActionResult GetAddressById(int contactId, int addressId)
         {
             Address address = _dbContext.AddressRepo.GetSingleOrDefault(addressId);
 
             if (address == null)
                 return NotFound();
 
-            if(address.ContactId != contactId)
-                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            if (address.ContactId != contactId)
+                return Forbid();
 
             _dbContext.AddressRepo.PopulateContact(address);
 
             return Ok(address);
         }
 
-        [Route("{contactId:int}/addresses")]
-        public IHttpActionResult CreateAddress(int contactId, Address address)
+        [HttpGet("{contactId:int}/addresses")]
+        public IActionResult CreateAddress(int contactId, Address address)
         {
             address.ContactId = contactId;
             Address createdAddress = _dbContext.AddressRepo.Create(address);
