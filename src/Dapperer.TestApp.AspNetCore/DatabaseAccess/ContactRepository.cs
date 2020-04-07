@@ -1,10 +1,9 @@
 ﻿using System.Data;
 using System.Linq;
-using Dapperer.QueryBuilders;
-using Dapperer.TestApiApp.Entities;
 using Dapper;
+using Dapperer.TestApp.AspNetCore.Entities;
 
-namespace Dapperer.TestApiApp.DatabaseAccess
+namespace Dapperer.TestApp.AspNetCore.DatabaseAccess
 {
     public class ContactRepository : Repository<Contact, int>
     {

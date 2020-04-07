@@ -1,6 +1,4 @@
-﻿using Dapperer.QueryBuilders;
-
-namespace Dapperer.TestApiApp.DatabaseAccess
+﻿namespace Dapperer.TestApp.AspNetCore.DatabaseAccess
 {
     public class DbContext : IDbContext
     {

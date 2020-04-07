@@ -2,12 +2,18 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+    <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Bede Gaming Ltd</Authors>
+    <Owners>Bede Gaming Ltd</Owners>
+    <Description>Dapperer an extension for Dapper</Description>
+    <PackageTags>Dapper</PackageTags>
+    <PackageProjectUrl>https://github.com/BedeGaming/Dapperer</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Dapper" Version="2.0.30" />
     <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45'">

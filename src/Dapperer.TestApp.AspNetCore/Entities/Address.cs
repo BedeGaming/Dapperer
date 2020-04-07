@@ -1,4 +1,4 @@
-﻿namespace Dapperer.TestApiApp.Entities
+﻿namespace Dapperer.TestApp.AspNetCore.Entities
 {
     [Table("Addresses")]
     public class Address : IIdentifier<int>
