@@ -1,4 +1,4 @@
-﻿using Microsoft.SqlServer.Server;
+﻿using Microsoft.Data.SqlClient.Server;
 using System.Collections.Generic;
 
 namespace Dapperer.QueryBuilders.MsSql

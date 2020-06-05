@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using Dapper;
-using Microsoft.SqlServer.Server;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient.Server;
 
 namespace Dapperer.QueryBuilders.MsSql
 {
