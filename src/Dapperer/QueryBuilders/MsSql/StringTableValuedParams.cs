@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Microsoft.SqlServer.Server;
+using Microsoft.Data.SqlClient.Server;
 
 namespace Dapperer.QueryBuilders.MsSql
 {
