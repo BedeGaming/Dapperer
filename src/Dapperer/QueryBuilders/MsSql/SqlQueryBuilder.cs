@@ -50,11 +50,11 @@ namespace Dapperer.QueryBuilders.MsSql
             if (string.IsNullOrWhiteSpace(tableInfo.Key))
                 throw new InvalidOperationException("Primary key must be specified to the table");
 
-            if (key is string stringKey && tableInfo.KeyIsAnsi)
+            if (key is string stringKey)
             {
                 return new DbString
                 {
-                    IsAnsi = true,
+                    IsAnsi = tableInfo.KeyIsAnsi,
                     Value = stringKey
                 };
             }
