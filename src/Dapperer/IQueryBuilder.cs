@@ -10,6 +10,9 @@ namespace Dapperer
         string GetByPrimaryKeysQuery<TEntity>()
             where TEntity : class;
 
+        object GetPrimaryKeyParameter<TEntity, TPrimaryKey>(TPrimaryKey key)
+            where TEntity : class;
+
         string GetAll<TEntity>()
             where TEntity : class;
 

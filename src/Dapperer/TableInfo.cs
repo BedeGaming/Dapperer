@@ -6,6 +6,7 @@ namespace Dapperer
     {
         public string TableName { get; private set; }
         public string Key { get; private set; }
+        public bool KeyIsAnsi { get; private set; }
         public bool AutoIncrement { get; private set; }
 
         internal string InsertSql { get; private set; }
@@ -29,6 +30,11 @@ namespace Dapperer
         public void SetKey(string key)
         {
             Key = key;
+        }
+
+        public void SetKeyAnsi(bool isAnsi)
+        {
+            KeyIsAnsi = isAnsi;
         }
 
         public void SetAutoIncrement(bool autoIncrement)

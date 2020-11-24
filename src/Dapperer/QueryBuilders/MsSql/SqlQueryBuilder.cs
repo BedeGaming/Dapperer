@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Dapper;
 
 namespace Dapperer.QueryBuilders.MsSql
 {
@@ -39,6 +40,26 @@ namespace Dapperer.QueryBuilders.MsSql
                 throw new InvalidOperationException("Primary key must be specified to the table");
 
             return string.Format("SELECT * FROM {0} WHERE {1} IN @Keys", tableInfo.TableName, tableInfo.Key);
+        }
+
+        public object GetPrimaryKeyParameter<TEntity, TPrimaryKey>(TPrimaryKey key)
+            where TEntity : class
+        {
+            TableInfo tableInfo = GetTableInfo<TEntity>();
+
+            if (string.IsNullOrWhiteSpace(tableInfo.Key))
+                throw new InvalidOperationException("Primary key must be specified to the table");
+
+            if (key is string stringKey && tableInfo.KeyIsAnsi)
+            {
+                return new DbString
+                {
+                    IsAnsi = true,
+                    Value = stringKey
+                };
+            }
+
+            return key;
         }
 
         public string GetAll<TEntity>()
@@ -331,6 +352,7 @@ namespace Dapperer.QueryBuilders.MsSql
                     if (columnAttribute.IsPrimary)
                     {
                         tableInfo.SetKey(columnAttribute.Name);
+                        tableInfo.SetKeyAnsi(columnAttribute.IsAnsi);
                         tableInfo.SetAutoIncrement(columnAttribute.AutoIncrement);
                     }
                 }
