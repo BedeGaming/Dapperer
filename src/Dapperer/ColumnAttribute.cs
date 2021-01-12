@@ -8,6 +8,7 @@ namespace Dapperer
         public string Name { get; private set; }
         public bool IsPrimary { get; set; }
         public bool AutoIncrement { get; set; }
+        public bool IsAnsi { get; set; }
 
         public ColumnAttribute(string name)
         {

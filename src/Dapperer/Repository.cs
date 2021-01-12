@@ -36,7 +36,7 @@ namespace Dapperer
 
             using (IDbConnection connection = CreateConnection())
             {
-                return connection.Query<TEntity>(sql, new { Key = primaryKey }).SingleOrDefault();
+                return connection.Query<TEntity>(sql, new { Key = _queryBuilder.GetPrimaryKeyParameter<TEntity, TPrimaryKey>(primaryKey) }).SingleOrDefault();
             }
         }
 
@@ -46,7 +46,7 @@ namespace Dapperer
 
             using (IDbConnection connection = CreateConnection())
             {
-                return connection.Query<TEntity>(sql, new { Keys = primaryKeys }).ToList();
+                return connection.Query<TEntity>(sql, new { Keys = primaryKeys.Select(primaryKey => _queryBuilder.GetPrimaryKeyParameter<TEntity, TPrimaryKey>(primaryKey)) }).ToList();
             }
         }
 

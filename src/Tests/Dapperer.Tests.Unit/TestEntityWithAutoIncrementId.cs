@@ -1,9 +1,9 @@
 ﻿namespace Dapperer.Tests.Unit
 {
     [Table("TestTable")]
-    public class TestEntityWithoutAutoIncreamentId
+    public class TestEntityWithAutoIncrementId
     {
-        [Column("Id", IsPrimary = true, AutoIncrement = false)]
+        [Column("Id", IsPrimary = true, AutoIncrement = true)]
         public int Id { get; set; }
 
         [Column("Name")]

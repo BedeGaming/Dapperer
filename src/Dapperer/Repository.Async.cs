@@ -17,7 +17,7 @@ namespace Dapperer
 
             using (IDbConnection connection = CreateConnection())
             {
-                return (await connection.QueryAsync<TEntity>(sql, new { Key = primaryKey }).ConfigureAwait(false)).SingleOrDefault();
+                return (await connection.QueryAsync<TEntity>(sql, new { Key = _queryBuilder.GetPrimaryKeyParameter<TEntity, TPrimaryKey>(primaryKey) }).ConfigureAwait(false)).SingleOrDefault();
             }
         }
 
@@ -27,7 +27,7 @@ namespace Dapperer
 
             using (IDbConnection connection = CreateConnection())
             {
-                return (await connection.QueryAsync<TEntity>(sql, new { Keys = primaryKeys }).ConfigureAwait(false)).ToList();
+                return (await connection.QueryAsync<TEntity>(sql, new { Keys = primaryKeys.Select(primaryKey => _queryBuilder.GetPrimaryKeyParameter<TEntity, TPrimaryKey>(primaryKey)) }).ConfigureAwait(false)).ToList();
             }
         }
 
