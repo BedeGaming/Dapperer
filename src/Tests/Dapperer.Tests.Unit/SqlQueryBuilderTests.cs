@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Dapper;
 using Dapperer.QueryBuilders.MsSql;
 using NUnit.Framework;
 
@@ -15,7 +16,7 @@ namespace Dapperer.Tests.Unit
             const string expectedSql = "SELECT * FROM TestTable WHERE Id = @Key";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            string sql = queryBuilder.GetByPrimaryKeyQuery<TestEntityWithAutoIncreamentId>();
+            string sql = queryBuilder.GetByPrimaryKeyQuery<TestEntityWithAutoIncrementId>();
 
             Assert.AreEqual(expectedSql, ReplaceNextLineAndTab(sql));
         }
@@ -32,14 +33,36 @@ namespace Dapperer.Tests.Unit
         }
 
         [Test]
-        public void GetByPrimaryKeyQuery_EntityWithoutPrimaryKey_ThrowException()
+        public void GetByPrimaryKeyParameter_WithAnsiStringPrimaryKey_ReturnsAsExpected()
         {
-            const string expectedExceptionMessage = "Primary key must be specified to the table";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.GetByPrimaryKeyQuery<TestEntityWithoutPrimaryKey>());
+            var parameter = queryBuilder.GetPrimaryKeyParameter<TestEntityWithAnsiStringPrimaryKey, string>("TestValue") as DbString;
 
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+            Assert.NotNull(parameter);
+            Assert.IsTrue(parameter.IsAnsi);
+            Assert.AreEqual("TestValue", parameter.Value);
+        }
+
+        [Test]
+        public void GetByPrimaryKeyParameter_WithStringPrimaryKey_ReturnsAsExpected()
+        {
+            IQueryBuilder queryBuilder = GetQueryBuilder();
+
+            var parameter = queryBuilder.GetPrimaryKeyParameter<TestEntityWithStringPrimaryKey, string>("TestValue") as DbString;
+
+            Assert.NotNull(parameter);
+            Assert.IsFalse(parameter.IsAnsi);
+            Assert.AreEqual("TestValue", parameter.Value);
+        }
+
+        [Test]
+        public void GetByPrimaryKeyParameter_WithNonStringPrimaryKey_ReturnsAsExpected()
+        {
+            IQueryBuilder queryBuilder = GetQueryBuilder();
+
+            var parameter = queryBuilder.GetPrimaryKeyParameter<TestEntityWithAutoIncrementId, int>(51);
+            Assert.AreEqual(51, (int)parameter);
         }
 
         [Test]
@@ -60,7 +83,7 @@ namespace Dapperer.Tests.Unit
             const string expectedCountSql = "SELECT CAST(COUNT(*) AS Int) AS total FROM TestTable";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 5);
+            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncrementId>(2, 5);
 
             Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
             Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
@@ -73,7 +96,7 @@ namespace Dapperer.Tests.Unit
             const string expectedCountSql = "SELECT CAST(COUNT(*) AS Int) AS total FROM TestTable";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 5, orderByQuery: "ORDER BY Name");
+            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncrementId>(2, 5, orderByQuery: "ORDER BY Name");
 
             Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
             Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
@@ -86,7 +109,7 @@ namespace Dapperer.Tests.Unit
             const string expectedCountSql = "SELECT CAST(COUNT(DISTINCT TestTable.Id) AS Int) AS total FROM TestTable WHERE BY Name like 'J%'";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 5, filterQuery: "WHERE BY Name like 'J%'");
+            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncrementId>(2, 5, filterQuery: "WHERE BY Name like 'J%'");
 
             Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
             Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
@@ -99,7 +122,7 @@ namespace Dapperer.Tests.Unit
             const string expectedCountSql = "SELECT CAST(COUNT(DISTINCT TestTable.Id) AS Int) AS total FROM TestTable WHERE BY Name like 'J%'";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 
+            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncrementId>(2, 
                                                                                          5, 
                                                                                          filterQuery: "WHERE BY Name like 'J%'", 
                                                                                          additionalTableColumns:new List<string> {"Table","TableTest" });
@@ -115,7 +138,7 @@ namespace Dapperer.Tests.Unit
             const string expectedCountSql = "SELECT CAST(COUNT(DISTINCT TestTable.Id) AS Int) AS total FROM TestTable WHERE BY Name like 'J%'";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 0, filterQuery: "WHERE BY Name like 'J%'");
+            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncrementId>(2, 0, filterQuery: "WHERE BY Name like 'J%'");
 
             Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
             Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
@@ -128,7 +151,7 @@ namespace Dapperer.Tests.Unit
             const string expectedCountSql = "SELECT CAST(COUNT(*) AS Int) AS total FROM TestTable";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncreamentId>(2, 0);
+            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncrementId>(2, 0);
 
             Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
             Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
@@ -159,7 +182,7 @@ namespace Dapperer.Tests.Unit
 
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            string sql = queryBuilder.InsertQuery<TestEntityWithAutoIncreamentId, int>(multiple: false);
+            string sql = queryBuilder.InsertQuery<TestEntityWithAutoIncrementId, int>(multiple: false);
 
             Assert.AreEqual(expectedSql, sql);
         }
@@ -202,7 +225,7 @@ namespace Dapperer.Tests.Unit
                 .ToString();
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            string sql = queryBuilder.InsertQuery<TestEntityWithoutAutoIncreamentId, int>(multiple: false);
+            string sql = queryBuilder.InsertQuery<TestEntityWithoutAutoIncrementId, int>(multiple: false);
 
             Assert.AreEqual(expectedSql, sql);
         }
@@ -224,7 +247,7 @@ namespace Dapperer.Tests.Unit
             const string expectedSql = "UPDATE TestTable SET[Name] = @NameWHERE [Id] = @Id;";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            string sql = queryBuilder.UpdateQuery<TestEntityWithAutoIncreamentId>();
+            string sql = queryBuilder.UpdateQuery<TestEntityWithAutoIncrementId>();
 
             Assert.AreEqual(expectedSql, ReplaceNextLineAndTab(sql));
         }
@@ -235,7 +258,7 @@ namespace Dapperer.Tests.Unit
             const string expectedSql = "DELETE FROM TestTable WHERE Id = @Key";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            string sql = queryBuilder.DeleteQuery<TestEntityWithAutoIncreamentId>();
+            string sql = queryBuilder.DeleteQuery<TestEntityWithAutoIncrementId>();
 
             Assert.AreEqual(expectedSql, ReplaceNextLineAndTab(sql));
         }
