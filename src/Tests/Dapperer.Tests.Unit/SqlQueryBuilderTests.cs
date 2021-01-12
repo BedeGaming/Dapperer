@@ -33,6 +33,17 @@ namespace Dapperer.Tests.Unit
         }
 
         [Test]
+        public void GetByPrimaryKeyQuery_EntityWithoutPrimaryKey_ThrowException()
+        {
+            const string expectedExceptionMessage = "Primary key must be specified to the table";
+            IQueryBuilder queryBuilder = GetQueryBuilder();
+            
+            var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.GetByPrimaryKeyQuery<TestEntityWithoutPrimaryKey>());
+
+            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+        }
+
+        [Test]
         public void GetByPrimaryKeyParameter_WithAnsiStringPrimaryKey_ReturnsAsExpected()
         {
             IQueryBuilder queryBuilder = GetQueryBuilder();
@@ -66,14 +77,15 @@ namespace Dapperer.Tests.Unit
         }
 
         [Test]
-        public void GetByPrimaryKeyParameter_WithNNoPrimaryKey_ReturnsAsExpected()
+        public void GetByPrimaryKeyParameter_WithNNoPrimaryKey_ThrowsException()
         {
+            const string expectedExceptionMessage = "Primary key must be specified to the table";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
             var exception = Assert.Throws<InvalidOperationException>(() => queryBuilder.GetPrimaryKeyParameter<TestEntityWithoutPrimaryKey, string>("TestValue"));
 
-            Assert.AreEqual("Primary key must be specified to the table", exception.Message);
-            }
+            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+        }
 
         [Test]
         public void PageQuery_EntityWithoutTableSpecified_ThrowException()
