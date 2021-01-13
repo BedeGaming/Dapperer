@@ -33,20 +33,25 @@ namespace Dapperer
         public virtual TEntity GetSingleOrDefault(TPrimaryKey primaryKey)
         {
             string sql = _queryBuilder.GetByPrimaryKeyQuery<TEntity>();
+            var parameters = new DynamicParameters();
+            parameters.Add("@Key", _queryBuilder.GetPrimaryKeyParameter<TEntity, TPrimaryKey>(primaryKey));
 
             using (IDbConnection connection = CreateConnection())
             {
-                return connection.Query<TEntity>(sql, new { Key = _queryBuilder.GetPrimaryKeyParameter<TEntity, TPrimaryKey>(primaryKey) }).SingleOrDefault();
+
+                return connection.Query<TEntity>(sql, parameters).SingleOrDefault();
             }
         }
 
         public virtual IList<TEntity> GetByKeys(IEnumerable<TPrimaryKey> primaryKeys)
         {
             string sql = _queryBuilder.GetByPrimaryKeysQuery<TEntity>();
+            var parameters = new DynamicParameters();
+            parameters.Add("@Keys", _queryBuilder.GetPrimaryKeyParameters<TEntity, TPrimaryKey>(primaryKeys));
 
             using (IDbConnection connection = CreateConnection())
             {
-                return connection.Query<TEntity>(sql, new { Keys = primaryKeys.Select(primaryKey => _queryBuilder.GetPrimaryKeyParameter<TEntity, TPrimaryKey>(primaryKey)) }).ToList();
+                return connection.Query<TEntity>(sql, parameters).ToList();
             }
         }
 
