@@ -14,20 +14,25 @@ namespace Dapperer
         public virtual async Task<TEntity> GetSingleOrDefaultAsync(TPrimaryKey primaryKey)
         {
             string sql = _queryBuilder.GetByPrimaryKeyQuery<TEntity>();
+            var parameters = new DynamicParameters();
+            parameters.Add("@Key", _queryBuilder.GetPrimaryKeyParameter<TEntity, TPrimaryKey>(primaryKey));
 
             using (IDbConnection connection = CreateConnection())
             {
-                return (await connection.QueryAsync<TEntity>(sql, new { Key = _queryBuilder.GetPrimaryKeyParameter<TEntity, TPrimaryKey>(primaryKey) }).ConfigureAwait(false)).SingleOrDefault();
+
+                return (await connection.QueryAsync<TEntity>(sql, parameters).ConfigureAwait(false)).SingleOrDefault();
             }
         }
 
         public virtual async Task<IList<TEntity>> GetByKeysAsync(IEnumerable<TPrimaryKey> primaryKeys)
         {
             string sql = _queryBuilder.GetByPrimaryKeysQuery<TEntity>();
+            var parameters = new DynamicParameters();
+            parameters.Add("@Keys", _queryBuilder.GetPrimaryKeyParameters<TEntity, TPrimaryKey>(primaryKeys));
 
             using (IDbConnection connection = CreateConnection())
             {
-                return (await connection.QueryAsync<TEntity>(sql, new { Keys = primaryKeys.Select(primaryKey => _queryBuilder.GetPrimaryKeyParameter<TEntity, TPrimaryKey>(primaryKey)) }).ConfigureAwait(false)).ToList();
+                return (await connection.QueryAsync<TEntity>(sql, parameters).ConfigureAwait(false)).ToList();
             }
         }
 

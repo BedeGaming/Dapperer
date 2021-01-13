@@ -13,6 +13,9 @@ namespace Dapperer
         object GetPrimaryKeyParameter<TEntity, TPrimaryKey>(TPrimaryKey key)
             where TEntity : class;
 
+        object GetPrimaryKeyParameters<TEntity, TPrimaryKey>(IEnumerable<TPrimaryKey> keys)
+            where TEntity : class;
+
         string GetAll<TEntity>()
             where TEntity : class;
 

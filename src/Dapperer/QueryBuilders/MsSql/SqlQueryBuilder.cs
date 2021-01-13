@@ -62,6 +62,26 @@ namespace Dapperer.QueryBuilders.MsSql
             return key;
         }
 
+        public object GetPrimaryKeyParameters<TEntity, TPrimaryKey>(IEnumerable<TPrimaryKey> keys)
+            where TEntity : class
+        {
+            TableInfo tableInfo = GetTableInfo<TEntity>();
+
+            if (string.IsNullOrWhiteSpace(tableInfo.Key))
+                throw new InvalidOperationException("Primary key must be specified to the table");
+
+            if (keys is IEnumerable<string> stringKeys)
+            {
+                return keys.Select(key => new DbString
+                {
+                    IsAnsi = tableInfo.KeyIsAnsi,
+                    Value = key as string
+                });
+            }
+
+            return keys;
+        }
+
         public string GetAll<TEntity>()
             where TEntity : class
         {
