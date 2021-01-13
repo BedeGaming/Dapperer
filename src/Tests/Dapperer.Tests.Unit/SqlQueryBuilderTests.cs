@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Dapper;
 using Dapperer.QueryBuilders.MsSql;
@@ -37,7 +38,7 @@ namespace Dapperer.Tests.Unit
         {
             const string expectedExceptionMessage = "Primary key must be specified to the table";
             IQueryBuilder queryBuilder = GetQueryBuilder();
-            
+
             var exception = Assert.Catch<InvalidOperationException>(() => queryBuilder.GetByPrimaryKeyQuery<TestEntityWithoutPrimaryKey>());
 
             Assert.AreEqual(expectedExceptionMessage, exception.Message);
@@ -83,6 +84,50 @@ namespace Dapperer.Tests.Unit
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
             var exception = Assert.Throws<InvalidOperationException>(() => queryBuilder.GetPrimaryKeyParameter<TestEntityWithoutPrimaryKey, string>("TestValue"));
+
+            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+        }
+
+        [Test]
+        public void GetByPrimaryKeyParameters_WithAnsiStringPrimaryKey_ReturnsAsExpected()
+        {
+            IQueryBuilder queryBuilder = GetQueryBuilder();
+
+            var parameter = queryBuilder.GetPrimaryKeyParameters<TestEntityWithAnsiStringPrimaryKey, string>(new[] { "TestValue" }) as IEnumerable<DbString>;
+
+            Assert.NotNull(parameter);
+            Assert.IsTrue(parameter.First().IsAnsi);
+            Assert.AreEqual("TestValue", parameter.First().Value);
+        }
+
+        [Test]
+        public void GetByPrimaryKeyParameters_WithStringPrimaryKey_ReturnsAsExpected()
+        {
+            IQueryBuilder queryBuilder = GetQueryBuilder();
+
+            var parameter = queryBuilder.GetPrimaryKeyParameters<TestEntityWithStringPrimaryKey, string>(new[] { "TestValue" }) as IEnumerable<DbString>;
+
+            Assert.NotNull(parameter);
+            Assert.IsFalse(parameter.First().IsAnsi);
+            Assert.AreEqual("TestValue", parameter.First().Value);
+        }
+
+        [Test]
+        public void GetByPrimaryKeyParameters_WithNonStringPrimaryKey_ReturnsAsExpected()
+        {
+            IQueryBuilder queryBuilder = GetQueryBuilder();
+
+            var parameter = queryBuilder.GetPrimaryKeyParameters<TestEntityWithAutoIncrementId, int>(new[] { 51 }) as IEnumerable<int>;
+            Assert.AreEqual(51, (int)parameter.First());
+        }
+
+        [Test]
+        public void GetByPrimaryKeyParameters_WithNNoPrimaryKey_ThrowsException()
+        {
+            const string expectedExceptionMessage = "Primary key must be specified to the table";
+            IQueryBuilder queryBuilder = GetQueryBuilder();
+
+            var exception = Assert.Throws<InvalidOperationException>(() => queryBuilder.GetPrimaryKeyParameters<TestEntityWithoutPrimaryKey, string>(new[] { "TestValue" }));
 
             Assert.AreEqual(expectedExceptionMessage, exception.Message);
         }
@@ -136,7 +181,7 @@ namespace Dapperer.Tests.Unit
             Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
             Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
         }
-        
+
         [Test]
         public void PageQuery_FilterBySpecified_And_AdditionalTableColumn_PassedQueryIsUsed()
         {
@@ -144,10 +189,10 @@ namespace Dapperer.Tests.Unit
             const string expectedCountSql = "SELECT CAST(COUNT(DISTINCT TestTable.Id) AS Int) AS total FROM TestTable WHERE BY Name like 'J%'";
             IQueryBuilder queryBuilder = GetQueryBuilder();
 
-            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncrementId>(2, 
-                                                                                         5, 
-                                                                                         filterQuery: "WHERE BY Name like 'J%'", 
-                                                                                         additionalTableColumns:new List<string> {"Table","TableTest" });
+            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncrementId>(2,
+                                                                                         5,
+                                                                                         filterQuery: "WHERE BY Name like 'J%'",
+                                                                                         additionalTableColumns: new List<string> { "Table", "TableTest" });
 
             Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
             Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
