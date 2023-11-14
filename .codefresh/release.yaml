@@ -33,7 +33,7 @@ steps:
     image: mcr.microsoft.com/dotnet/sdk:6.0
     working_directory: ${{clone}}/src
     commands:
-      - dotnet restore --configfile "nuget.config"
+      - dotnet restore
 
   build:
     title: Building
