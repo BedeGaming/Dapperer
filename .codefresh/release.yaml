@@ -43,17 +43,17 @@ steps:
     commands:
       - dotnet build --no-restore -c Release -p:Version=${{CF_BUILD_VERSION}}
 
-  # github_release:
-  #   title: Create github release
-  #   stage: package + release
-  #   image: en1bdess01acr.azurecr.io/codefresh-image-base:latest
-  #   commands:
-  #     - cd ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}
-  #     - gh release create ${{CF_BUILD_VERSION}} --title ${{CF_BUILD_VERSION}} --target ${{CF_REVISION}} --notes ""
+  github_release:
+    title: Create github release
+    stage: package + release
+    image: en1bdess01acr.azurecr.io/codefresh-image-base:latest
+    commands:
+      - cd ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}
+      - gh release create ${{CF_BUILD_VERSION}} --title ${{CF_BUILD_VERSION}} --target ${{CF_REVISION}} --notes ""
 
-  # push_nupkgs:
-  #   title: Push nupkgs
-  #   stage: package + release
-  #   image: mcr.microsoft.com/dotnet/sdk:6.0
-  #   commands:
-  #     - dotnet nuget push ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/**/*.nupkg -k ${{secrets.codefresh-secrets.nexus-api-key}} -s http://repos.ad.bedegaming.com:8081/repository/nuget-components/
+  push_nupkgs:
+    title: Push nupkgs
+    stage: package + release
+    image: mcr.microsoft.com/dotnet/sdk:6.0
+    commands:
+      - dotnet nuget push ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/**/*.nupkg -k ${{secrets.codefresh-secrets.nexus-api-key}} -s http://repos.ad.bedegaming.com:8081/repository/nuget-components/
