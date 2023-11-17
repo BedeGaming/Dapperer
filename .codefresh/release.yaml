@@ -1,0 +1,59 @@
+version: "1.0"
+stages:
+  - setup
+  - build + test
+  - package + release
+
+steps:
+  clone:
+    title: Cloning repository
+    type: git-clone
+    repo: BedeGaming/Dapperer
+    revision: ${{CF_BRANCH}}
+    git: github
+    stage: setup
+
+  bump_build_number:
+    title: Bump default build_number annotation
+    type: bump-build-number
+    stage: setup
+
+  increment_semver:
+    title: Semantic Versioning (release)
+    type: bedegaming/semantic-versioning
+    stage: setup
+    arguments:
+      WORKING_DIRECTORY: ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}
+      FAIL_ON_NO_SEMVER_TAG: true
+      RESET_BUILD_COUNTER_ON_NEW_SEMVER_TAG: true
+
+  restore:
+    title: Restoring packages
+    stage: build + test
+    image: mcr.microsoft.com/dotnet/sdk:6.0
+    working_directory: ${{clone}}/src
+    commands:
+      - dotnet restore
+
+  build:
+    title: Building
+    stage: build + test
+    image: mcr.microsoft.com/dotnet/sdk:6.0
+    working_directory: ${{clone}}/src
+    commands:
+      - dotnet build --no-restore -c Release -p:Version=${{CF_BUILD_VERSION}}
+
+  github_release:
+    title: Create github release
+    stage: package + release
+    image: en1bdess01acr.azurecr.io/codefresh-image-base:latest
+    commands:
+      - cd ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}
+      - gh release create ${{CF_BUILD_VERSION}} --title ${{CF_BUILD_VERSION}} --target ${{CF_REVISION}} --notes ""
+
+  push_nupkgs:
+    title: Push nupkgs
+    stage: package + release
+    image: mcr.microsoft.com/dotnet/sdk:6.0
+    commands:
+      - dotnet nuget push ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/**/*.nupkg -k ${{secrets.codefresh-secrets.nexus-api-key}} -s http://repos.ad.bedegaming.com:8081/repository/nuget-components/
