@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29806.167
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapperer", "Dapperer\Dapperer.csproj", "{7A2A3C1D-FC60-4DCA-9692-4CBA76215F6D}"
 EndProject
@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapperer.Tests.Unit", "Tests\Dapperer.Tests.Unit\Dapperer.Tests.Unit.csproj", "{BE3F5389-1917-44EF-9ACA-94BB6DA7B519}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapperer.TestApp.AspNetCore", "Dapperer.TestApp.AspNetCore\Dapperer.TestApp.AspNetCore.csproj", "{A2FF7D40-20CE-45FF-B752-7A3BECCFC665}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapperer.TestApp.AspNetCore", "Dapperer.TestApp.AspNetCore\Dapperer.TestApp.AspNetCore.csproj", "{A2FF7D40-20CE-45FF-B752-7A3BECCFC665}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

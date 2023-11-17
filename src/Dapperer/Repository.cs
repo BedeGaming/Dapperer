@@ -124,6 +124,35 @@ namespace Dapperer
             return result;
         }
 
+        public virtual IEnumerable<TEntity> CreateBatchWithOutput(IEnumerable<TEntity> entities)
+        {
+            return CreateBatchWithOutput(entities, identityInsert: false);
+        }
+
+        public virtual IEnumerable<TEntity> CreateBatchWithOutput(IEnumerable<TEntity> entities, bool identityInsert)
+        {
+            var tableInfo = (TableInfo)GetTableInfo();
+
+            string[] columsToInsert = GetInsertColumns(tableInfo, identityInsert);
+
+            List<TEntity> results = new List<TEntity>();
+            var batches = SplitIntoBatches(entities, CalculateMaxBatchCountBasedOnColumnsCount(columsToInsert.Count()));
+
+            using (IDbConnection connection = CreateConnection())
+            {
+                foreach (var batch in batches)
+                {
+                    string sql = _queryBuilder.InsertQueryBatchWithOutput(batch, tableInfo.TableName, columsToInsert);
+
+                    var parameters = ConvertEntitiesToParameters(batch.ToArray(), columsToInsert);
+
+                    results.AddRange(connection.Query<TEntity>(sql, parameters));
+                }
+            }
+
+            return results;
+        }
+
         public virtual int Update(TEntity entity)
         {
             string sql = _queryBuilder.UpdateQuery<TEntity>();
@@ -265,9 +294,9 @@ namespace Dapperer
             PopulateOneToMany<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey, foreignEntityCollection, entities);
         }
 
-        protected Page<TEntity> Page(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null, ICollection<string> additionalTableColumns = null)
+        protected Page<TEntity> Page(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null, ICollection<string> additionalTableColumns = null, string fromQuery = null)
         {
-            PagingSql pagingSql = GetPagingSql(skip, take, filterQuery, orderByQuery, additionalTableColumns);
+            PagingSql pagingSql = GetPagingSql(skip, take, fromQuery, filterQuery, orderByQuery, additionalTableColumns);
 
             using (IDbConnection connection = CreateConnection())
             {
@@ -326,7 +355,7 @@ namespace Dapperer
         }
 
         protected Page<T> PageResults<T>(int skip, int take, int totalItems, List<T> items)
-            where T : class 
+            where T : class
         {
             int totalPages = GetTotalPages(take, totalItems);
             int currentPage = GetCurrentPage(skip, take);
@@ -342,14 +371,14 @@ namespace Dapperer
             };
         }
 
-        protected PagingSql GetPagingSql(int skip, int take, string filterQuery, string orderByQuery, ICollection<string> additionalTableColumns)
+        protected PagingSql GetPagingSql(int skip, int take, string fromQuery, string filterQuery, string orderByQuery, ICollection<string> additionalTableColumns)
         {
             if (skip < 0)
                 throw new ArgumentException("Invalid skip value", "skip");
             if (take < 0)
                 throw new ArgumentException("Invalid take value", "take");
 
-            return _queryBuilder.PageQuery<TEntity>(skip, take, orderByQuery, filterQuery, additionalTableColumns);
+            return _queryBuilder.PageQuery<TEntity>(skip, take, fromQuery, orderByQuery, filterQuery, additionalTableColumns);
         }
     }
 }

@@ -89,53 +89,62 @@ namespace Dapperer.QueryBuilders.MsSql
             return string.Format("SELECT * FROM {0} ", tableInfo.TableName);
         }
 
-        public PagingSql PageQuery<TEntity>(long skip, long take, string orderByQuery = null, string filterQuery = null, ICollection<string> additionalTableColumns = null)
+        public PagingSql PageQuery<TEntity>(long skip, long take, string fromQuery = null, string orderByQuery = null, string filterQuery = null, ICollection<string> additionalTableColumns = null)
             where TEntity : class
         {
             ITableInfoBase tableInfo = GetTableInfo<TEntity>();
+
+            var selectColumns = GetSelectColumns(additionalTableColumns, tableInfo);
+
+            if (string.IsNullOrWhiteSpace(fromQuery))
+            {
+                fromQuery = tableInfo.TableName;
+            }
+            else
+            {
+                fromQuery = string.Format("({0}) AS {1}", fromQuery, tableInfo.TableName);
+            }
 
             if (string.IsNullOrWhiteSpace(orderByQuery))
             {
                 orderByQuery = string.Format("ORDER BY {0}", tableInfo.Key);
             }
 
-            var selectColumns = GetSelectColumns(additionalTableColumns, tableInfo);
-
             var pagingSql = new PagingSql();
             if (string.IsNullOrWhiteSpace(filterQuery))
             {
                 if (take == 0)
                 {
-                    pagingSql.Items = string.Format("SELECT * FROM {0} {1} OFFSET {2} ROWS", tableInfo.TableName, orderByQuery, skip);
+                    pagingSql.Items = string.Format("SELECT * FROM {0} {1} OFFSET {2} ROWS", fromQuery, orderByQuery, skip);
                 }
                 else
                 {
-                    pagingSql.Items = string.Format("SELECT * FROM {0} {1} OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", tableInfo.TableName, orderByQuery, skip, take);
+                    pagingSql.Items = string.Format("SELECT * FROM {0} {1} OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", fromQuery, orderByQuery, skip, take);
                 }
-                pagingSql.Count = string.Format("SELECT CAST(COUNT(*) AS Int) AS total FROM {0}", tableInfo.TableName);
+                pagingSql.Count = string.Format("SELECT CAST(COUNT(*) AS Int) AS total FROM {0}", fromQuery);
             }
             else
             {
                 if (take == 0)
                 {
-                    pagingSql.Items = string.Format("SELECT DISTINCT {0} FROM {1} {2} {3} OFFSET {4} ROWS", 
-                                                    selectColumns, 
-                                                    tableInfo.TableName, 
-                                                    filterQuery, 
-                                                    orderByQuery, 
+                    pagingSql.Items = string.Format("SELECT DISTINCT {0} FROM {1} {2} {3} OFFSET {4} ROWS",
+                                                    selectColumns,
+                                                    fromQuery,
+                                                    filterQuery,
+                                                    orderByQuery,
                                                     skip);
                 }
                 else
                 {
-                    pagingSql.Items = string.Format("SELECT DISTINCT {0} FROM {1} {2} {3} OFFSET {4} ROWS FETCH NEXT {5} ROWS ONLY", 
-                                                    selectColumns, 
-                                                    tableInfo.TableName, 
-                                                    filterQuery, 
-                                                    orderByQuery, 
+                    pagingSql.Items = string.Format("SELECT DISTINCT {0} FROM {1} {2} {3} OFFSET {4} ROWS FETCH NEXT {5} ROWS ONLY",
+                                                    selectColumns,
+                                                    fromQuery,
+                                                    filterQuery,
+                                                    orderByQuery,
                                                     skip,
                                                     take);
                 }
-                pagingSql.Count = string.Format("SELECT CAST(COUNT(DISTINCT {0}.{1}) AS Int) AS total FROM {0} {2}", tableInfo.TableName, tableInfo.Key, filterQuery);
+                pagingSql.Count = string.Format("SELECT CAST(COUNT(DISTINCT {0}.{1}) AS Int) AS total FROM {2} {3}", tableInfo.TableName, tableInfo.Key, fromQuery, filterQuery);
             }
 
             return pagingSql;
@@ -192,6 +201,26 @@ namespace Dapperer.QueryBuilders.MsSql
              where TEntity : class
         {
             var sql = ToSqlInsertStatement(entities, tableName, columnNames);
+
+            if (identityInsert)
+            {
+                string identityInsertOn = $"SET IDENTITY_INSERT {tableName} ON";
+                string identityInsertOff = $"SET IDENTITY_INSERT {tableName} OFF";
+
+                return $"{identityInsertOn}{Environment.NewLine}{sql}{Environment.NewLine}{identityInsertOff}";
+            }
+
+            return sql;
+        }
+
+        public string InsertQueryBatchWithOutput<TEntity>(
+            IEnumerable<TEntity> entities,
+            string tableName,
+            string[] columnNames,
+            bool identityInsert = false)
+            where TEntity : class
+        {
+            var sql = ToSqlInsertWithOutputStatement(entities, tableName, columnNames);
 
             if (identityInsert)
             {
@@ -387,6 +416,12 @@ namespace Dapperer.QueryBuilders.MsSql
             return ConvertToSqlInsertStatement(data, tableName, columnNames);
         }
 
+        private string ToSqlInsertWithOutputStatement<TEntity>(IEnumerable<TEntity> data, string tableName, string[] columnNames)
+            where TEntity : class
+        {
+            return ConvertToSqlInsertWithOutputStatement(data, tableName, columnNames);
+        }
+
         private string ConvertToSqlInsertStatement<T>(IEnumerable<T> data, string tableName, IEnumerable<string> columns)
         {
             StringBuilder sb = new StringBuilder();
@@ -394,17 +429,37 @@ namespace Dapperer.QueryBuilders.MsSql
             string columnsJoined = string.Join($",", columns.Select(x => $"[{x}]"));
 
             sb.Append($"INSERT INTO {tableName} ({columnsJoined}) VALUES ");
-
             sb.Append(Environment.NewLine);
+
+            JoinColumns(sb, data, columns);
+
+            return sb.ToString();
+        }
+
+        private string ConvertToSqlInsertWithOutputStatement<T>(IEnumerable<T> data, string tableName, IEnumerable<string> columns)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            string columnsJoined = string.Join($",", columns.Select(x => $"[{x}]"));
+
+            sb.Append($"INSERT INTO {tableName} ({columnsJoined}) OUTPUT INSERTED.* VALUES ");
+            sb.Append(Environment.NewLine);
+
+            JoinColumns(sb, data, columns);
+
+            return sb.ToString();
+        }
+
+        private void JoinColumns<T>(StringBuilder sb, IEnumerable<T> data, IEnumerable<string> columns)
+        {
             for (int i = 0; i < data.Count(); i++)
             {
                 string parameters = string.Join($",", columns.Select(x => $"@{x}{i}"));
                 sb.Append($"({parameters}),");
             }
+
             sb.Remove(sb.Length - 1, 1);
             sb.Append(Environment.NewLine);
-
-            return sb.ToString();
         }
     }
 }

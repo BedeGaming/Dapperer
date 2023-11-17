@@ -106,6 +106,36 @@ namespace Dapperer
             return result;
         }
 
+        public virtual async Task<IEnumerable<TEntity>> CreateBatchWithOutputAsync(IEnumerable<TEntity> entities)
+        {
+            return await CreateBatchWithOutputAsync(entities, identityInsert: false);
+        }
+
+        public virtual async Task<IEnumerable<TEntity>> CreateBatchWithOutputAsync(IEnumerable<TEntity> entities, bool identityInsert)
+        {
+            var tableInfo = (TableInfo)GetTableInfo();
+
+            string[] columsToInsert = GetInsertColumns(tableInfo, identityInsert);
+
+            List<TEntity> results = new List<TEntity>();
+            var batches = SplitIntoBatches(entities, CalculateMaxBatchCountBasedOnColumnsCount(columsToInsert.Count()));
+
+            using (IDbConnection connection = CreateConnection())
+            {
+                foreach (var batch in batches)
+                {
+                    string sql = _queryBuilder.InsertQueryBatchWithOutput(batch, tableInfo.TableName, columsToInsert, identityInsert);
+
+                    var parameters = ConvertEntitiesToParameters(batch.ToArray(), columsToInsert);
+
+                    results.AddRange(await connection.QueryAsync<TEntity>(sql, parameters)
+                        .ConfigureAwait(false));
+                }
+            }
+
+            return results;
+        }
+
         public virtual async Task<int> UpdateAsync(TEntity entity)
         {
             string sql = _queryBuilder.UpdateQuery<TEntity>();
@@ -146,9 +176,9 @@ namespace Dapperer
             }
         }
 
-        protected async Task<Page<TEntity>> PageAsync(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null, ICollection<string> additionalTableColumns = null)
+        protected async Task<Page<TEntity>> PageAsync(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null, ICollection<string> additionalTableColumns = null, string fromQuery = null)
         {
-            PagingSql pagingSql = GetPagingSql(skip, take, filterQuery, orderByQuery, additionalTableColumns);
+            PagingSql pagingSql = GetPagingSql(skip, take, fromQuery, filterQuery, orderByQuery, additionalTableColumns);
 
             using (IDbConnection connection = CreateConnection())
             {
