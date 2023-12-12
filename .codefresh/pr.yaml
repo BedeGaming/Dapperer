@@ -9,7 +9,7 @@ steps:
     title: Cloning repository
     type: git-clone
     repo: BedeGaming/Dapperer
-    revision: ${{CF_BRANCH}}
+    revision: ${{CF_REVISION}}
     git: github
     stage: setup
 
