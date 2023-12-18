@@ -265,9 +265,9 @@ namespace Dapperer
             PopulateOneToMany<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey, foreignEntityCollection, entities);
         }
 
-        protected Page<TEntity> Page(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null, ICollection<string> additionalTableColumns = null)
+        protected Page<TEntity> Page(int skip, int take, string filterQuery, object filterParams = null, string fromQuery = null, string orderByQuery = null, ICollection<string> additionalTableColumns = null)
         {
-            PagingSql pagingSql = GetPagingSql(skip, take, filterQuery, orderByQuery, additionalTableColumns);
+            PagingSql pagingSql = GetPagingSql(skip, take, fromQuery, filterQuery, orderByQuery, additionalTableColumns);
 
             using (IDbConnection connection = CreateConnection())
             {
@@ -342,14 +342,14 @@ namespace Dapperer
             };
         }
 
-        protected PagingSql GetPagingSql(int skip, int take, string filterQuery, string orderByQuery, ICollection<string> additionalTableColumns)
+        protected PagingSql GetPagingSql(int skip, int take, string fromQuery, string filterQuery, string orderByQuery, ICollection<string> additionalTableColumns)
         {
             if (skip < 0)
                 throw new ArgumentException("Invalid skip value", "skip");
             if (take < 0)
                 throw new ArgumentException("Invalid take value", "take");
 
-            return _queryBuilder.PageQuery<TEntity>(skip, take, orderByQuery, filterQuery, additionalTableColumns);
+            return _queryBuilder.PageQuery<TEntity>(skip, take, fromQuery, orderByQuery, filterQuery, additionalTableColumns);
         }
     }
 }

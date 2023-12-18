@@ -89,10 +89,19 @@ namespace Dapperer.QueryBuilders.MsSql
             return string.Format("SELECT * FROM {0} ", tableInfo.TableName);
         }
 
-        public PagingSql PageQuery<TEntity>(long skip, long take, string orderByQuery = null, string filterQuery = null, ICollection<string> additionalTableColumns = null)
+        public PagingSql PageQuery<TEntity>(long skip, long take, string fromQuery = null, string orderByQuery = null, string filterQuery = null, ICollection<string> additionalTableColumns = null)
             where TEntity : class
         {
             ITableInfoBase tableInfo = GetTableInfo<TEntity>();
+
+            if(string.IsNullOrWhiteSpace(fromQuery))
+            {
+                fromQuery = tableInfo.TableName;
+            }
+            else
+            {
+                fromQuery = string.Format("({0})", fromQuery);
+            }
 
             if (string.IsNullOrWhiteSpace(orderByQuery))
             {
@@ -106,13 +115,13 @@ namespace Dapperer.QueryBuilders.MsSql
             {
                 if (take == 0)
                 {
-                    pagingSql.Items = string.Format("SELECT * FROM {0} {1} OFFSET {2} ROWS", tableInfo.TableName, orderByQuery, skip);
+                    pagingSql.Items = string.Format("SELECT * FROM {0} {1} OFFSET {2} ROWS", fromQuery, orderByQuery, skip);
                 }
                 else
                 {
-                    pagingSql.Items = string.Format("SELECT * FROM {0} {1} OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", tableInfo.TableName, orderByQuery, skip, take);
+                    pagingSql.Items = string.Format("SELECT * FROM {0} {1} OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", fromQuery, orderByQuery, skip, take);
                 }
-                pagingSql.Count = string.Format("SELECT CAST(COUNT(*) AS Int) AS total FROM {0}", tableInfo.TableName);
+                pagingSql.Count = string.Format("SELECT CAST(COUNT(*) AS Int) AS total FROM {0}", fromQuery);
             }
             else
             {
@@ -120,7 +129,7 @@ namespace Dapperer.QueryBuilders.MsSql
                 {
                     pagingSql.Items = string.Format("SELECT DISTINCT {0} FROM {1} {2} {3} OFFSET {4} ROWS", 
                                                     selectColumns, 
-                                                    tableInfo.TableName, 
+                                                    fromQuery, 
                                                     filterQuery, 
                                                     orderByQuery, 
                                                     skip);
@@ -129,13 +138,13 @@ namespace Dapperer.QueryBuilders.MsSql
                 {
                     pagingSql.Items = string.Format("SELECT DISTINCT {0} FROM {1} {2} {3} OFFSET {4} ROWS FETCH NEXT {5} ROWS ONLY", 
                                                     selectColumns, 
-                                                    tableInfo.TableName, 
+                                                    fromQuery, 
                                                     filterQuery, 
                                                     orderByQuery, 
                                                     skip,
                                                     take);
                 }
-                pagingSql.Count = string.Format("SELECT CAST(COUNT(DISTINCT {0}.{1}) AS Int) AS total FROM {0} {2}", tableInfo.TableName, tableInfo.Key, filterQuery);
+                pagingSql.Count = string.Format("SELECT CAST(COUNT(DISTINCT {0}.{1}) AS Int) AS total FROM {0} {2}", fromQuery, tableInfo.Key, filterQuery);
             }
 
             return pagingSql;

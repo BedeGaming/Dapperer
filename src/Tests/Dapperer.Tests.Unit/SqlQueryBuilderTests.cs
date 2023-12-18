@@ -144,6 +144,32 @@ namespace Dapperer.Tests.Unit
         }
 
         [Test]
+        public void PageQuery_NoFromSpecified_TableNameIsUsed()
+        {
+            const string expectedItemsSql = "SELECT * FROM TestTable ORDER BY Id OFFSET 2 ROWS FETCH NEXT 5 ROWS ONLY";
+            const string expectedCountSql = "SELECT CAST(COUNT(*) AS Int) AS total FROM TestTable";
+            IQueryBuilder queryBuilder = GetQueryBuilder();
+
+            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncrementId>(2, 5);
+
+            Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
+            Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
+        }
+
+        [Test]
+        public void PageQuery_FromSpecified_PassedFromIsUsed()
+        {
+            const string expectedItemsSql = "SELECT * FROM (SELECT TOP 10 FROM TestTable) ORDER BY Id OFFSET 2 ROWS FETCH NEXT 5 ROWS ONLY";
+            const string expectedCountSql = "SELECT CAST(COUNT(*) AS Int) AS total FROM (SELECT TOP 10 FROM TestTable)";
+            IQueryBuilder queryBuilder = GetQueryBuilder();
+
+            PagingSql pagingSql = queryBuilder.PageQuery<TestEntityWithAutoIncrementId>(2, 5, fromQuery: "SELECT TOP 10 FROM TestTable");
+
+            Assert.AreEqual(expectedItemsSql, ReplaceNextLineAndTab(pagingSql.Items));
+            Assert.AreEqual(expectedCountSql, ReplaceNextLineAndTab(pagingSql.Count));
+        }
+
+        [Test]
         public void PageQuery_NoOrderBySpecified_PrimaryKeyToOrderIsUsed()
         {
             const string expectedItemsSql = "SELECT * FROM TestTable ORDER BY Id OFFSET 2 ROWS FETCH NEXT 5 ROWS ONLY";
