@@ -144,7 +144,7 @@ namespace Dapperer.QueryBuilders.MsSql
                                                     skip,
                                                     take);
                 }
-                pagingSql.Count = string.Format("SELECT CAST(COUNT(DISTINCT {0}.{1}) AS Int) AS total FROM {0} {2}", fromQuery, tableInfo.Key, filterQuery);
+                pagingSql.Count = string.Format("SELECT CAST(COUNT(DISTINCT {0}.{1}) AS Int) AS total FROM {2} {3}", tableInfo.TableName, tableInfo.Key, fromQuery, filterQuery);
             }
 
             return pagingSql;
