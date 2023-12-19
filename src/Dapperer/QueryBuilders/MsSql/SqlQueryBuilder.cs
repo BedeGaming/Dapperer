@@ -94,21 +94,21 @@ namespace Dapperer.QueryBuilders.MsSql
         {
             ITableInfoBase tableInfo = GetTableInfo<TEntity>();
 
-            if(string.IsNullOrWhiteSpace(fromQuery))
+            var selectColumns = GetSelectColumns(additionalTableColumns, tableInfo);
+
+            if (string.IsNullOrWhiteSpace(fromQuery))
             {
                 fromQuery = tableInfo.TableName;
             }
             else
             {
-                fromQuery = string.Format("({0})", fromQuery);
+                fromQuery = string.Format("({0}) AS {1}", fromQuery, tableInfo.TableName);
             }
 
             if (string.IsNullOrWhiteSpace(orderByQuery))
             {
                 orderByQuery = string.Format("ORDER BY {0}", tableInfo.Key);
             }
-
-            var selectColumns = GetSelectColumns(additionalTableColumns, tableInfo);
 
             var pagingSql = new PagingSql();
             if (string.IsNullOrWhiteSpace(filterQuery))
@@ -127,20 +127,20 @@ namespace Dapperer.QueryBuilders.MsSql
             {
                 if (take == 0)
                 {
-                    pagingSql.Items = string.Format("SELECT DISTINCT {0} FROM {1} {2} {3} OFFSET {4} ROWS", 
-                                                    selectColumns, 
-                                                    fromQuery, 
-                                                    filterQuery, 
-                                                    orderByQuery, 
+                    pagingSql.Items = string.Format("SELECT DISTINCT {0} FROM {1} {2} {3} OFFSET {4} ROWS",
+                                                    selectColumns,
+                                                    fromQuery,
+                                                    filterQuery,
+                                                    orderByQuery,
                                                     skip);
                 }
                 else
                 {
-                    pagingSql.Items = string.Format("SELECT DISTINCT {0} FROM {1} {2} {3} OFFSET {4} ROWS FETCH NEXT {5} ROWS ONLY", 
-                                                    selectColumns, 
-                                                    fromQuery, 
-                                                    filterQuery, 
-                                                    orderByQuery, 
+                    pagingSql.Items = string.Format("SELECT DISTINCT {0} FROM {1} {2} {3} OFFSET {4} ROWS FETCH NEXT {5} ROWS ONLY",
+                                                    selectColumns,
+                                                    fromQuery,
+                                                    filterQuery,
+                                                    orderByQuery,
                                                     skip,
                                                     take);
                 }
