@@ -265,7 +265,7 @@ namespace Dapperer
             PopulateOneToMany<TForeignEntity, TForeignEntityPrimaryKey>(foreignKey, foreignEntityCollection, entities);
         }
 
-        protected Page<TEntity> Page(int skip, int take, string filterQuery, object filterParams = null, string fromQuery = null, string orderByQuery = null, ICollection<string> additionalTableColumns = null)
+        protected Page<TEntity> Page(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null, ICollection<string> additionalTableColumns = null, string fromQuery = null)
         {
             PagingSql pagingSql = GetPagingSql(skip, take, fromQuery, filterQuery, orderByQuery, additionalTableColumns);
 
@@ -326,7 +326,7 @@ namespace Dapperer
         }
 
         protected Page<T> PageResults<T>(int skip, int take, int totalItems, List<T> items)
-            where T : class 
+            where T : class
         {
             int totalPages = GetTotalPages(take, totalItems);
             int currentPage = GetCurrentPage(skip, take);
