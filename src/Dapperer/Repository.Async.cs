@@ -146,9 +146,9 @@ namespace Dapperer
             }
         }
 
-        protected async Task<Page<TEntity>> PageAsync(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null, ICollection<string> additionalTableColumns = null)
+        protected async Task<Page<TEntity>> PageAsync(int skip, int take, string filterQuery, object filterParams = null, string orderByQuery = null, ICollection<string> additionalTableColumns = null, string fromQuery = null)
         {
-            PagingSql pagingSql = GetPagingSql(skip, take, filterQuery, orderByQuery, additionalTableColumns);
+            PagingSql pagingSql = GetPagingSql(skip, take, fromQuery, filterQuery, orderByQuery, additionalTableColumns);
 
             using (IDbConnection connection = CreateConnection())
             {
