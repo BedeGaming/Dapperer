@@ -124,6 +124,35 @@ namespace Dapperer
             return result;
         }
 
+        public virtual IEnumerable<TEntity> CreateBatch(IEnumerable<TEntity> entities)
+        {
+            return CreateBatch(entities, identityInsert: false);
+        }
+
+        public virtual IEnumerable<TEntity> CreateBatch(IEnumerable<TEntity> entities, bool identityInsert)
+        {
+            var tableInfo = (TableInfo)GetTableInfo();
+
+            string[] columsToInsert = GetInsertColumns(tableInfo, identityInsert);
+
+            List<TEntity> results = new List<TEntity>();
+            var batches = SplitIntoBatches(entities, CalculateMaxBatchCountBasedOnColumnsCount(columsToInsert.Count()));
+
+            using (IDbConnection connection = CreateConnection())
+            {
+                foreach (var batch in batches)
+                {
+                    string sql = _queryBuilder.InsertQueryOutputBatch(batch, tableInfo.TableName, columsToInsert);
+
+                    var parameters = ConvertEntitiesToParameters(batch.ToArray(), columsToInsert);
+
+                    results.AddRange(connection.Query<TEntity>(sql, parameters));
+                }
+            }
+
+            return results;
+        }
+
         public virtual int Update(TEntity entity)
         {
             string sql = _queryBuilder.UpdateQuery<TEntity>();

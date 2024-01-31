@@ -14,6 +14,8 @@ namespace Dapperer
         TEntity Create(TEntity entity, bool identityInsert);
         int Create(IEnumerable<TEntity> entities);
         int Create(IEnumerable<TEntity> entities, bool identityInsert);
+        IEnumerable<TEntity> CreateBatch(IEnumerable<TEntity> entities);
+        IEnumerable<TEntity> CreateBatch(IEnumerable<TEntity> entities, bool identityInsert);
         int Update(TEntity entity);
         int Update(IEnumerable<TEntity> entities);
         int Delete(TPrimaryKey primaryKey);
@@ -27,6 +29,8 @@ namespace Dapperer
         Task<TEntity> CreateAsync(TEntity entity, bool identityInsert);
         Task<int> CreateAsync(IEnumerable<TEntity> entities);
         Task<int> CreateAsync(IEnumerable<TEntity> entities, bool identityInsert);
+        Task<IEnumerable<TEntity>> CreateBatchAsync(IEnumerable<TEntity> entities);
+        Task<IEnumerable<TEntity>> CreateBatchAsync(IEnumerable<TEntity> entities, bool identityInsert);
         Task<int> UpdateAsync(TEntity entity);
         Task<int> UpdateAsync(IEnumerable<TEntity> entities);
         Task<int> DeleteAsync(TPrimaryKey primaryKey);

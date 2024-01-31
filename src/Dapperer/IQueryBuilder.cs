@@ -31,6 +31,9 @@ namespace Dapperer
         string InsertQueryBatch<TEntity>(IEnumerable<TEntity> entities, string tableName, string[] columnNames, bool identityInsert = false)
              where TEntity : class;
 
+        string InsertQueryOutputBatch<TEntity>(IEnumerable<TEntity> entities, string tableName, string[] columnNames, bool identityInsert = false)
+            where TEntity : class;
+
         string UpdateQuery<TEntity>()
             where TEntity : class;
 

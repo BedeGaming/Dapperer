@@ -106,6 +106,36 @@ namespace Dapperer
             return result;
         }
 
+        public virtual async Task<IEnumerable<TEntity>> CreateBatchAsync(IEnumerable<TEntity> entities)
+        {
+            return await CreateBatchAsync(entities, identityInsert: false);
+        }
+
+        public virtual async Task<IEnumerable<TEntity>> CreateBatchAsync(IEnumerable<TEntity> entities, bool identityInsert)
+        {
+            var tableInfo = (TableInfo)GetTableInfo();
+
+            string[] columsToInsert = GetInsertColumns(tableInfo, identityInsert);
+
+            List<TEntity> results = new List<TEntity>();
+            var batches = SplitIntoBatches(entities, CalculateMaxBatchCountBasedOnColumnsCount(columsToInsert.Count()));
+
+            using (IDbConnection connection = CreateConnection())
+            {
+                foreach (var batch in batches)
+                {
+                    string sql = _queryBuilder.InsertQueryOutputBatch(batch, tableInfo.TableName, columsToInsert, identityInsert);
+
+                    var parameters = ConvertEntitiesToParameters(batch.ToArray(), columsToInsert);
+
+                    results.AddRange(await connection.QueryAsync<TEntity>(sql, parameters)
+                        .ConfigureAwait(false));
+                }
+            }
+
+            return results;
+        }
+
         public virtual async Task<int> UpdateAsync(TEntity entity)
         {
             string sql = _queryBuilder.UpdateQuery<TEntity>();
