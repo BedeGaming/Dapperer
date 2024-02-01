@@ -213,6 +213,26 @@ namespace Dapperer.QueryBuilders.MsSql
             return sql;
         }
 
+        public string InsertQueryBatchWithOutput<TEntity>(
+            IEnumerable<TEntity> entities,
+            string tableName,
+            string[] columnNames,
+            bool identityInsert = false)
+            where TEntity : class
+        {
+            var sql = ToSqlInsertWithOutputStatement(entities, tableName, columnNames);
+
+            if (identityInsert)
+            {
+                string identityInsertOn = $"SET IDENTITY_INSERT {tableName} ON";
+                string identityInsertOff = $"SET IDENTITY_INSERT {tableName} OFF";
+
+                return $"{identityInsertOn}{Environment.NewLine}{sql}{Environment.NewLine}{identityInsertOff}";
+            }
+
+            return sql;
+        }
+
         private static string IdentityInsertQuery(TableInfo tableInfo)
         {
             lock (tableInfo)
@@ -396,6 +416,12 @@ namespace Dapperer.QueryBuilders.MsSql
             return ConvertToSqlInsertStatement(data, tableName, columnNames);
         }
 
+        private string ToSqlInsertWithOutputStatement<TEntity>(IEnumerable<TEntity> data, string tableName, string[] columnNames)
+            where TEntity : class
+        {
+            return ConvertToSqlInsertWithOutputStatement(data, tableName, columnNames);
+        }
+
         private string ConvertToSqlInsertStatement<T>(IEnumerable<T> data, string tableName, IEnumerable<string> columns)
         {
             StringBuilder sb = new StringBuilder();
@@ -403,17 +429,37 @@ namespace Dapperer.QueryBuilders.MsSql
             string columnsJoined = string.Join($",", columns.Select(x => $"[{x}]"));
 
             sb.Append($"INSERT INTO {tableName} ({columnsJoined}) VALUES ");
-
             sb.Append(Environment.NewLine);
+
+            JoinColumns(sb, data, columns);
+
+            return sb.ToString();
+        }
+
+        private string ConvertToSqlInsertWithOutputStatement<T>(IEnumerable<T> data, string tableName, IEnumerable<string> columns)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            string columnsJoined = string.Join($",", columns.Select(x => $"[{x}]"));
+
+            sb.Append($"INSERT INTO {tableName} ({columnsJoined}) OUTPUT INSERTED.* VALUES ");
+            sb.Append(Environment.NewLine);
+
+            JoinColumns(sb, data, columns);
+
+            return sb.ToString();
+        }
+
+        private void JoinColumns<T>(StringBuilder sb, IEnumerable<T> data, IEnumerable<string> columns)
+        {
             for (int i = 0; i < data.Count(); i++)
             {
                 string parameters = string.Join($",", columns.Select(x => $"@{x}{i}"));
                 sb.Append($"({parameters}),");
             }
+
             sb.Remove(sb.Length - 1, 1);
             sb.Append(Environment.NewLine);
-
-            return sb.ToString();
         }
     }
 }
