@@ -124,12 +124,12 @@ namespace Dapperer
             return result;
         }
 
-        public virtual IEnumerable<TEntity> CreateBatch(IEnumerable<TEntity> entities)
+        public virtual IEnumerable<TEntity> CreateBatchWithOutput(IEnumerable<TEntity> entities)
         {
-            return CreateBatch(entities, identityInsert: false);
+            return CreateBatchWithOutput(entities, identityInsert: false);
         }
 
-        public virtual IEnumerable<TEntity> CreateBatch(IEnumerable<TEntity> entities, bool identityInsert)
+        public virtual IEnumerable<TEntity> CreateBatchWithOutput(IEnumerable<TEntity> entities, bool identityInsert)
         {
             var tableInfo = (TableInfo)GetTableInfo();
 
@@ -142,7 +142,7 @@ namespace Dapperer
             {
                 foreach (var batch in batches)
                 {
-                    string sql = _queryBuilder.InsertQueryOutputBatch(batch, tableInfo.TableName, columsToInsert);
+                    string sql = _queryBuilder.InsertQueryBatchWithOutput(batch, tableInfo.TableName, columsToInsert);
 
                     var parameters = ConvertEntitiesToParameters(batch.ToArray(), columsToInsert);
 

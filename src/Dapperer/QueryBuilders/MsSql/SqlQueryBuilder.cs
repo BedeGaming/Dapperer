@@ -213,14 +213,14 @@ namespace Dapperer.QueryBuilders.MsSql
             return sql;
         }
 
-        public string InsertQueryOutputBatch<TEntity>(
+        public string InsertQueryBatchWithOutput<TEntity>(
             IEnumerable<TEntity> entities,
             string tableName,
             string[] columnNames,
             bool identityInsert = false)
             where TEntity : class
         {
-            var sql = ToSqlInsertOutputStatement(entities, tableName, columnNames);
+            var sql = ToSqlInsertWithOutputStatement(entities, tableName, columnNames);
 
             if (identityInsert)
             {
@@ -416,7 +416,7 @@ namespace Dapperer.QueryBuilders.MsSql
             return ConvertToSqlInsertStatement(data, tableName, columnNames);
         }
 
-        private string ToSqlInsertOutputStatement<TEntity>(IEnumerable<TEntity> data, string tableName, string[] columnNames)
+        private string ToSqlInsertWithOutputStatement<TEntity>(IEnumerable<TEntity> data, string tableName, string[] columnNames)
             where TEntity : class
         {
             return ConvertToSqlInsertWithOutputStatement(data, tableName, columnNames);

@@ -106,12 +106,12 @@ namespace Dapperer
             return result;
         }
 
-        public virtual async Task<IEnumerable<TEntity>> CreateBatchAsync(IEnumerable<TEntity> entities)
+        public virtual async Task<IEnumerable<TEntity>> CreateBatchWithOutputAsync(IEnumerable<TEntity> entities)
         {
-            return await CreateBatchAsync(entities, identityInsert: false);
+            return await CreateBatchWithOutputAsync(entities, identityInsert: false);
         }
 
-        public virtual async Task<IEnumerable<TEntity>> CreateBatchAsync(IEnumerable<TEntity> entities, bool identityInsert)
+        public virtual async Task<IEnumerable<TEntity>> CreateBatchWithOutputAsync(IEnumerable<TEntity> entities, bool identityInsert)
         {
             var tableInfo = (TableInfo)GetTableInfo();
 
@@ -124,7 +124,7 @@ namespace Dapperer
             {
                 foreach (var batch in batches)
                 {
-                    string sql = _queryBuilder.InsertQueryOutputBatch(batch, tableInfo.TableName, columsToInsert, identityInsert);
+                    string sql = _queryBuilder.InsertQueryBatchWithOutput(batch, tableInfo.TableName, columsToInsert, identityInsert);
 
                     var parameters = ConvertEntitiesToParameters(batch.ToArray(), columsToInsert);
 
