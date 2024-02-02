@@ -56,4 +56,4 @@ steps:
     stage: package + release
     image: mcr.microsoft.com/dotnet/sdk:6.0
     commands:
-      - dotnet nuget push ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/**/*.nupkg -k ${{secrets.codefresh-secrets.nexus-api-key}} -s http://repos.ad.bedegaming.com:8081/repository/nuget-components/
+      - dotnet nuget push ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/**/*.nupkg -k ${{NUGET_ORG_API_KEY}} -s https://api.nuget.org/v3/index.json
